@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | مسابقة حامل القرآن</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            padding: 40px 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .admin-header h1 {
+            color: #d4af37;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            font-size: 1rem;
+            color: #aaa;
+            margin: 0;
+        }
+
+        .stat-card p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 10px 0 0;
+        }
+
+        .registrations-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .registrations-table th,
+        .registrations-table td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .registrations-table th {
+            background: rgba(212, 175, 55, 0.1);
+            color: #d4af37;
+            font-weight: 700;
+        }
+
+        .registrations-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+        }
+
+        .btn-view {
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-img {
+            background: #d4af37;
+            color: #000;
+        }
+
+        .btn-delete {
+            background: #ff4d4d;
+            color: #fff;
+            margin-right: 5px;
+        }
+
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #d4af37;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #111;
+            color: #fff;
+            text-align: center;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            background: #d4af37;
+            color: #000;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <i class="fas fa-lock" style="font-size: 3rem; color: #d4af37; margin-bottom: 20px;"></i>
+            <h2>دخول لوحة التحكم</h2>
+            <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور">
+            <button onclick="checkPassword()" class="btn-login">دخول</button>
+        </div>
+    </div>
+
+    <div class="admin-container" id="adminContent" style="display:none;">
+        <header class="admin-header">
+            <h1>لوحة تحكم مسابقة حامل القرآن</h1>
+            <button onclick="logout()" class="btn btn-secondary">تسجيل خروج</button>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3>إجمالي المسجلين</h3>
+                <p id="totalCount">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-star"></i>
+                <h3>المستوى الأول</h3>
+                <p id="level1Count">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-star-half-alt"></i>
+                <h3>المستوى الثاني</h3>
+                <p id="level2Count">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-certificate"></i>
+                <h3>المستوى الثالث</h3>
+                <p id="level3Count">0</p>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="registrations-table">
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>المستوى</th>
+                        <th>رقم التليفون</th>
+                        <th>العنوان</th>
+                        <th>الشيخ المحفظ</th>
+                        <th>الملفات</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="registrationsList">
+                    <!-- البيانات ستظهر هنا -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // --- Firebase Configuration (نفس القيم في script.js) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDIT0tkxLlYkEidEtwTHvZimvQuVM-gDyw",
+            authDomain: "hamel-a89ce.firebaseapp.com",
+            projectId: "hamel-a89ce",
+            storageBucket: "hamel-a89ce.firebasestorage.app",
+            messagingSenderId: "678005054790",
+            appId: "1:678005054790:web:14a17c94ac0d3b2da71947"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function checkPassword() {
+            const pass = document.getElementById('adminPassword').value;
+            if (pass === '01000qwe') { // كلمة المرور الجديدة
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                loadData();
+            } else {
+                alert('كلمة مرور خاطئة!');
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        async function loadData() {
+            const list = document.getElementById('registrationsList');
+            list.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل البيانات...</td></tr>';
+
+            try {
+                // استخدام onSnapshot للحصول على تحديثات مباشرة (Live)
+                db.collection('registrations').orderBy('submissionDate', 'desc').onSnapshot((snapshot) => {
+                    list.innerHTML = '';
+                    let stats = { total: 0, l1: 0, l2: 0, l3: 0 };
+
+                    if (snapshot.empty) {
+                        list.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا يوجد مسجلين حالياً</td></tr>';
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const row = `
+                            <tr>
+                                <td>${data.studentName}</td>
+                                <td>${data.level}</td>
+                                <td>${data.phone1}</td>
+                                <td>${data.address}</td>
+                                <td>${data.sheikhName}</td>
+                                <td>
+                                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                                        <a href="${data.photoUrl}" target="_blank" class="btn-view btn-img"><i class="fas fa-image"></i> صورة</a>
+                                        <a href="${data.certUrl}" target="_blank" class="btn-view btn-img"><i class="fas fa-id-card"></i> شهادة</a>
+                                        <a href="${data.paymentUrl}" target="_blank" class="btn-view btn-img"><i class="fas fa-receipt"></i> دفع</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button onclick="deleteRegistration('${doc.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                </td>
+                            </tr>
+                        `;
+                        list.innerHTML += row;
+
+                        // تحديث الإحصائيات
+                        stats.total++;
+                        if (data.level && data.level.includes('الأول')) stats.l1++;
+                        if (data.level && data.level.includes('الثاني')) stats.l2++;
+                        if (data.level && data.level.includes('الثالث')) stats.l3++;
+                    });
+
+                    document.getElementById('totalCount').textContent = stats.total;
+                    document.getElementById('level1Count').textContent = stats.l1;
+                    document.getElementById('level2Count').textContent = stats.l2;
+                    document.getElementById('level3Count').textContent = stats.l3;
+                }, (error) => {
+                    console.error("Firebase error:", error);
+                    list.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">فشل الاتصال! تأكد من إعدادات الحماية (Rules) في Firebase.</td></tr>';
+                });
+
+            } catch (error) {
+                console.error("Error setting up listener: ", error);
+            }
+        }
+
+        async function deleteRegistration(id) {
+            if (confirm('هل أنت متأكد من حذف هذا التسجيل؟')) {
+                try {
+                    await db.collection('registrations').doc(id).delete();
+                    alert('تم الحذف بنجاح');
+                    loadData();
+                } catch (error) {
+                    alert('خطأ أثناء الحذف');
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
