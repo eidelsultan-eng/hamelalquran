@@ -45,12 +45,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+
             navLinks.classList.remove('active');
 
-            const target = document.querySelector(this.getAttribute('href'));
+            const target = document.querySelector(href);
             if (target) {
+                const offsetTop = target.getBoundingClientRect().top + window.pageYOffset - 80;
                 window.scrollTo({
-                    top: target.offsetTop - 80,
+                    top: offsetTop,
                     behavior: 'smooth'
                 });
             }
@@ -179,23 +183,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Registration Form logic
     const registrationForm = document.getElementById('registrationForm');
     if (registrationForm) {
-        // Handle custom file names display
-        const fileInputs = registrationForm.querySelectorAll('input[type="file"]');
-        fileInputs.forEach(input => {
-            input.addEventListener('change', (e) => {
-                const fileName = e.target.files[0] ? e.target.files[0].name : 'اختر من معرض الصور';
-                const customBtn = e.target.parentElement.querySelector('.file-custom-btn');
-                customBtn.innerHTML = `<i class="fas fa-check-circle" style="color: #4CAF50;"></i> ${fileName}`;
-            });
-        });
-
         const submitBtn = document.getElementById('submitBtn');
         const loader = document.getElementById('loader');
         const btnText = submitBtn?.querySelector('.btn-text');
+        const agreeTerms = document.getElementById('agreeTerms');
+
+        if (agreeTerms && submitBtn) {
+            agreeTerms.addEventListener('change', () => {
+                if (agreeTerms.checked) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                } else {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.style.cursor = 'not-allowed';
+                }
+            });
+        }
 
         registrationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const studentName = registrationForm.querySelector('input[name="studentName"]').value.trim();
 
             if (localStorage.getItem(`registered_${studentName}`)) {
@@ -210,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Timeout function
-            const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error("استغرق الرفع وقتاً طويلاً جداً (Timeout)")), ms));
+            const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error("استغرق الطلب وقتاً طويلاً جداً (Timeout)")), ms));
 
             try {
                 const formData = new FormData(registrationForm);
@@ -221,46 +229,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const sheikhPhone = formData.get('sheikhPhone');
                 const level = formData.get('level');
 
-                let photoUrl = "#", certUrl = "#", paymentUrl = "#";
-                let uploadSuccess = false;
-                let dataSavedToCloud = false; // New variable to track if textual data was saved
+                let dataSavedToCloud = false;
 
                 if (isFirebaseConfigured && db) {
-                    // 1. Try to upload files (Optional/Best Effort)
-                    if (storage) {
-                        try {
-                            if (btnText) btnText.textContent = 'جاري رفع الملفات...';
-
-                            const uploadWithProgress = async (file, folder, label) => {
-                                if (!file || file.size === 0) return "#";
-                                const storageRef = storage.ref(`${folder}/${Date.now()}_${file.name}`);
-                                const uploadTask = storageRef.put(file);
-                                const snapshot = await Promise.race([uploadTask, timeout(15000)]); // 15 seconds per file
-                                return await snapshot.ref.getDownloadURL();
-                            };
-
-                            const personalPhoto = document.getElementById('personalPhoto').files[0];
-                            const birthCertificate = document.getElementById('birthCertificate').files[0];
-                            const paymentScreenshot = document.getElementById('paymentScreenshot').files[0];
-
-                            photoUrl = await uploadWithProgress(personalPhoto, 'personal_photos', 'الصورة الشخصية');
-                            certUrl = await uploadWithProgress(birthCertificate, 'birth_certificates', 'شهادة الميلاد');
-                            paymentUrl = await uploadWithProgress(paymentScreenshot, 'payment_screenshots', 'إيصال الدفع');
-                            uploadSuccess = true;
-                        } catch (fileErr) {
-                            console.warn("File upload failed, proceeding with data only:", fileErr);
-                        }
-                    }
-
-                    // 2. ALWAYS try to save the textual data
                     try {
-                        if (btnText) btnText.textContent = 'جاري حفظ البيانات الأساسية...';
+                        if (btnText) btnText.textContent = 'جاري حفظ البيانات...';
                         await Promise.race([
                             db.collection('registrations').add({
                                 studentName, phone1, phone2, address, sheikhName, sheikhPhone, level,
-                                photoUrl, certUrl, paymentUrl,
-                                imagesUploaded: uploadSuccess,
-                                submissionDate: firebase.firestore.FieldValue.serverTimestamp()
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
                             }),
                             timeout(10000)
                         ]);
@@ -276,39 +253,130 @@ document.addEventListener('DOMContentLoaded', () => {
                 messageText += `📝 *بيانات المتسابق:*\n━━━━━━━━━━━━━━━\n👤 *الاسم:* ${studentName}\n🏆 *المستوى:* ${level}\n\n`;
                 messageText += `📞 *بيانات التواصل:*\n━━━━━━━━━━━━━━━\n📱 *رقم الواتساب:* ${phone1}\n☎️ *رقم إضافي:* ${phone2}\n📍 *العنوان:* ${address}\n\n`;
                 messageText += `👨‍🏫 *بيانات المحفظ:*\n━━━━━━━━━━━━━━━\n🕋 *الشيخ المحفظ:* ${sheikhName}\n📞 *رقم الشيخ:* ${sheikhPhone}\n\n`;
-
-                if (!uploadSuccess) {
-                    messageText += `⚠️ *تنبيه:* يرجى إرفاق الصور (الشخصية، الشهادة، الإيصال) في هذه المحادثة الآن.`;
-                }
-
-                if (dataSavedToCloud) {
-                    messageText += `\n✅ *ملاحظة:* تم حفظ البيانات نصياً في لوحة التحكم.`;
-                }
+                messageText += `⚠️ *ملاحظة:* يرجى إحضار الصورة الشخصية وشهادة الميلاد ورسم الاشتراك (20 ج) يوم الاختبار.`;
 
                 const encodedText = encodeURIComponent(messageText);
                 window.open(`https://wa.me/${whatsappNumber}?text=${encodedText}`, '_blank');
 
                 localStorage.setItem(`registered_${studentName}`, 'true');
                 registrationForm.reset();
-                registrationForm.querySelectorAll('.file-custom-btn').forEach(btn => {
-                    btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> اختر من معرض الصور`;
-                });
+                if (agreeTerms) agreeTerms.checked = false;
 
-                if (dataSavedToCloud) {
-                    alert(uploadSuccess ? 'تم التسجيل ورفع الصور بنجاح!' : 'تم حفظ البيانات بنجاح، يرجى إرسال الصور عبر الواتساب الآن.');
-                } else {
-                    alert('تم فتح الواتساب لإرسال البيانات.');
-                }
+                alert('تم التقديم بنجاح! سيتم تحويلك الآن لتأكيد البيانات عبر واتساب.');
 
             } catch (error) {
                 console.error("Critical Error:", error);
                 alert('حدث خطأ غير متوقع: ' + error.message);
             } finally {
                 if (submitBtn) {
-                    submitBtn.disabled = false;
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.style.cursor = 'not-allowed';
                     if (loader) loader.style.display = 'none';
                     if (btnText) btnText.textContent = 'إرسال طلب التقديم';
                 }
+            }
+        });
+    }
+
+    // --- Gallery & Lightbox Logic ---
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxClose = document.querySelector('.lightbox-close');
+    let visibleCount = 4;
+
+    // Initially hide images beyond the first 5
+    const updateGalleryVisibility = () => {
+        galleryItems.forEach((item, index) => {
+            if (index < visibleCount) {
+                item.classList.remove('hidden');
+                item.style.display = 'block';
+            } else {
+                item.classList.add('hidden');
+                item.style.display = 'none';
+            }
+        });
+
+        if (visibleCount >= galleryItems.length) {
+            if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+        }
+    };
+
+    updateGalleryVisibility();
+
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+            visibleCount += 5; // Show 5 more
+            updateGalleryVisibility();
+        });
+    }
+
+    // Lightbox Modal Functionality
+    galleryItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const img = item.querySelector('img');
+            if (img && lightbox && lightboxImg) {
+                lightboxImg.src = img.src;
+                lightbox.style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            }
+        });
+    });
+
+    if (lightboxClose) {
+        lightboxClose.addEventListener('click', () => {
+            if (lightbox) {
+                lightbox.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                lightbox.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+    // Nomination Form Logic
+    const nominationForm = document.getElementById('nominationForm');
+    if (nominationForm) {
+        nominationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitNomBtn = nominationForm.querySelector('button[type="submit"]');
+            const originalText = submitNomBtn.innerHTML;
+
+            try {
+                submitNomBtn.disabled = true;
+                submitNomBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+
+                const formData = new FormData(nominationForm);
+                const data = {
+                    nominatorName: formData.get('nominatorName') || 'فاعل خير',
+                    nominatorPhone: formData.get('nominatorPhone'),
+                    awardType: formData.get('awardType'),
+                    nomineeName: formData.get('nomineeName'),
+                    reason: formData.get('reason'),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (isFirebaseConfigured && db) {
+                    await db.collection('nominations').add(data);
+                    alert('تم إرسال ترشيحك بنجاح! شكراً لمشاركتك.');
+                    nominationForm.reset();
+                } else {
+                    alert('عذراً، نظام الترشيحات غير متاح حالياً.');
+                }
+            } catch (err) {
+                console.error("Nomination Error:", err);
+                alert('حدث خطأ أثناء إرسال الترشيح. يرجى المحاولة لاحقاً.');
+            } finally {
+                submitNomBtn.disabled = false;
+                submitNomBtn.innerHTML = originalText;
             }
         });
     }

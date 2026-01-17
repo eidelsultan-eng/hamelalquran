@@ -31,10 +31,11 @@
             </div>
             <ul class="nav-links">
                 <li><a href="#hero">الرئيسية</a></li>
-                <li><a href="#apply">التقديم للمسابقة</a></li>
+                <li><a href="#apply">التقديم</a></li>
                 <li><a href="#about">عن المسابقة</a></li>
-                <li><a href="#categories">مستويات المسابقة</a></li>
+                <li><a href="#categories">المستويات</a></li>
                 <li><a href="#honoring">التكريم</a></li>
+                <li><a href="#loyalty">لمسة وفاء</a></li>
                 <li><a href="#contact">تواصل معنا</a></li>
             </ul>
             <div class="nav-toggle" id="navToggle">
@@ -107,8 +108,10 @@
                     <div class="about-cards-flex">
                         <!-- Vision Card -->
                         <div class="about-card" data-aos="fade-up" data-aos-delay="100">
-                            <div class="card-icon-small"><i class="fas fa-eye"></i></div>
-                            <h3>رؤيتنا</h3>
+                            <div class="about-card-header">
+                                <div class="card-icon-small"><i class="fas fa-eye"></i></div>
+                                <h3>رؤيتنا</h3>
+                            </div>
                             <p>أن تكون "مسابقة حامل القرآن بمسير" منارة قرآنية رائدة، تسهم في غرس القيم الإيمانية،
                                 وتحفيز الأجيال على حفظ كتاب الله وتطبيقه، من خلال جهود شبابية تطوعية خالصة لله، وبعيدة
                                 كل البعد عن أي توجهات سياسية أو حزبية.</p>
@@ -116,8 +119,10 @@
 
                         <!-- Mission Card -->
                         <div class="about-card" data-aos="fade-up" data-aos-delay="200">
-                            <div class="card-icon-small"><i class="fas fa-bullseye"></i></div>
-                            <h3>رسالتنا</h3>
+                            <div class="about-card-header">
+                                <div class="card-icon-small"><i class="fas fa-bullseye"></i></div>
+                                <h3>رسالتنا</h3>
+                            </div>
                             <p>نحن شباب من أبناء "مسير" اجتمعنا على حب القرآن، نسعى من خلال هذه المسابقة إلى:</p>
                             <ul class="check-list">
                                 <li><i class="fas fa-check-circle"></i> تكريم حفظة كتاب الله عز وجل.</li>
@@ -160,15 +165,11 @@
         </div>
     </section>
 
-
-
-
     <!-- Significance Section -->
     <section class="significance-section" id="significance">
         <div class="container">
             <div class="section-header" data-aos="fade-up">
-                <span class="upper-title">لماذا نتنافس؟</span>
-                <h2>أهمية مسابقات "حامل القرآن" القرآنية</h2>
+                <h2>أهمية مسابقة حامل القرآن الكريم</h2>
                 <div class="decorative-line"></div>
             </div>
             <div class="significance-grid">
@@ -179,7 +180,7 @@
                         بالمبادئ
                         والأخلاق الإسلامية السامية.</p>
                 </div>
-                <div class="significance-item" data-aos="fade-up" data-aos-delay="200">
+                <div class="significance-item white-significance-item" data-aos="fade-up" data-aos-delay="200">
                     <div class="sig-icon"><i class="fas fa-graduation-cap"></i></div>
                     <h3>إتقان التلاوة</h3>
                     <p>التنافس يشجع المتسابقين على مراجعة الحفظ بانتظام وتجويد الأداء، مما يصل بهم إلى درجة الإتقان
@@ -194,6 +195,9 @@
             </div>
         </div>
     </section>
+
+
+
 
 
 
@@ -390,6 +394,11 @@
                                 class="gallery-img">
                         </div>
                     </div>
+                    <div class="gallery-footer"
+                        style="text-align: center; margin-top: 40px; position: relative; z-index: 10;">
+                        <button id="loadMoreBtn" class="btn btn-primary" style="padding: 12px 35px;">عرض المزيد من الصور
+                            <i class="fas fa-plus-circle"></i></button>
+                    </div>
                 </div>
 
                 <!-- Special Awards Subsection -->
@@ -443,6 +452,83 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Nomination Form -->
+                    <div class="nomination-box"
+                        style="margin-top: 40px; background: rgba(255, 255, 255, 0.03); padding: 30px; border-radius: 20px; border: 1px dashed var(--primary-gold);">
+                        <h4 style="color: var(--primary-gold); margin-bottom: 15px; text-align: center;"><i
+                                class="fas fa-vote-yea"></i> رشح الآن للأم/المعلم المثالي</h4>
+                        <p style="text-align: center; color: var(--text-gray); margin-bottom: 20px;">ساعدنا في اختيار
+                            النماذج المشرفة من خلال ترشيح من تراه يستحق التكريم.</p>
+                        <form id="nominationForm" class="nomination-form"
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <input type="text" name="nominatorName" placeholder="اسمك (اختياري)"
+                                style="padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid #333; color: #fff;">
+                            <input type="tel" name="nominatorPhone" placeholder="رقم هاتفك للتواصل" required
+                                style="padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid #333; color: #fff;">
+                            <select name="awardType" required
+                                style="padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid #333; color: #fff; cursor: pointer;">
+                                <option value="" disabled selected>اختر نوع الجائزة</option>
+                                <option value="الأم المثالية">الأم المثالية</option>
+                                <option value="المعلم المثالي">المعلم المثالي</option>
+                                <option value="المعلمة المثالية">المعلمة المثالية</option>
+                            </select>
+                            <input type="text" name="nomineeName" placeholder="اسم المرشح/ـة" required
+                                style="padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid #333; color: #fff;">
+                            <textarea name="reason" placeholder="لماذا يستحق/تستحق التكريم؟" required
+                                style="padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid #333; color: #fff; grid-column: 1 / -1; min-height: 80px;"></textarea>
+                            <button type="submit" class="btn btn-primary" style="grid-column: 1 / -1;"><i
+                                    class="fas fa-paper-plane"></i> إرسال الترشيح</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Loyalty Touch Section -->
+                <div id="loyalty" class="loyalty-touch" data-aos="fade-up">
+                    <div class="section-header" style="margin-bottom: 20px;">
+                        <span class="upper-title gold-text">لمسة وفاء</span>
+                        <h2 style="color: #fff;">رحلوا وبقي أثرهم</h2>
+                        <div class="decorative-line gold-bg"></div>
+                        <p style="color: var(--text-gray); font-size: 1.1rem; max-width: 800px; margin-inline: auto;">
+                            نستذكر بكل فخر واعتزاز من ساهموا معنا في خدمة كتاب الله وتوفاهم الله، سائلين لهم الرحمة
+                            والمغفرة.</p>
+                    </div>
+
+                    <div class="loyalty-grid">
+                        <!-- Placeholder items for the user to provide images/names -->
+                        <div class="loyalty-item" data-aos="zoom-in">
+                            <div class="loyalty-img-box">
+                                <img src="sheikh_abdelmonem.jpg" alt="الشيخ عبدالمنعم البحيري" class="loyalty-img">
+                            </div>
+                            <h3 class="loyalty-name">الشيخ عبدالمنعم البحيري</h3>
+                            <p class="loyalty-p">رحمه الله تعالى</p>
+                        </div>
+
+                        <div class="loyalty-item" data-aos="zoom-in" data-aos-delay="100">
+                            <div class="loyalty-img-box">
+                                <img src="hadj_ibrahim.jpg" alt="الحاج ابراهيم أبوخضره" class="loyalty-img">
+                            </div>
+                            <h3 class="loyalty-name">الاستاذ ابراهيم أبوخضرة</h3>
+                            <p class="loyalty-p">رحمه الله تعالى</p>
+                        </div>
+
+                        <div class="loyalty-item" data-aos="zoom-in" data-aos-delay="200">
+                            <div class="loyalty-img-box">
+                                <img src="sheikh_metwaly.jpg" alt="الشيخ متولي الدميري" class="loyalty-img top-focus">
+                            </div>
+                            <h3 class="loyalty-name">الشيخ متولي الدميري</h3>
+                            <p class="loyalty-p">رحمه الله تعالى</p>
+                        </div>
+
+                        <div class="loyalty-item" data-aos="zoom-in" data-aos-delay="300">
+                            <div class="loyalty-img-box">
+                                <img src="ahmed_ghaloul.jpg" alt="الاستاذ احمد أمين الغفلول"
+                                    class="loyalty-img top-focus">
+                            </div>
+                            <h3 class="loyalty-name">الاستاذ احمد أمين الغفلول</h3>
+                            <p class="loyalty-p">رحمه الله تعالى</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -474,16 +560,13 @@
                         </div>
                         <ul class="notes-list">
                             <li><i class="fas fa-info-circle"></i> ألا يزيد عمر المتسابق عن 15 سنة.</li>
-                            <li><i class="fas fa-camera"></i> الصورة الشخصية (4×6) يجب أن تكون حديثة وواضحة.</li>
+                            <li><i class="fas fa-wallet"></i> رسم الاشتراك 20 جنيهاً تُحصل يوم الاختبار مع الصورة
+                                الشخصية وشهادة ميلاد حديثة.</li>
                             <li><i class="fas fa-home"></i> يجب أن يكون المتسابق من أبناء مدينة مسير.</li>
-                            <li><i class="fas fa-wallet"></i> رسم الاشتراك 20 جنيهاً فقط (صافي) تُحول عبر فودافون كاش أو
-                                انستا باي.</li>
                             <li class="note-warning"><i class="fas fa-times-circle"></i> في حال عدم الالتزام بالشروط
-                                السابقة كاملة، يعتبر المتسابق مستبعداً ولن يتم اختباره أو إعلان نتيجته.</li>
-                            <li class="note-warning"><i class="fas fa-user-shield"></i> سوف يتم التحقق من بياناتك عند
-                                إرسالها، وفي حالة ثبوت إرسال بيانات مزيفة سوف يتم استبعاد المتسابق فوراً.</li>
-                            <li class="note-info"><i class="fas fa-user-check"></i> هذا النظام يسمح للطلاب بالتقديم مرة
-                                واحدة فقط بالاسم الخاص به، ولن يتم قبول أي محاولات تسجيل متكررة.</li>
+                                السابقة كاملة، يعتبر المتسابق مستبعداً ولن يتم اختباره.</li>
+                            <li class="note-warning"><i class="fas fa-user-shield"></i> سوف يتم التحقق من كافة البيانات
+                                عند المراجعة.</li>
                         </ul>
                     </div>
 
@@ -497,12 +580,14 @@
 
                             <div class="input-group">
                                 <label for="phone1"><i class="fas fa-phone"></i> رقم التليفون (واتساب)</label>
-                                <input type="tel" id="phone1" name="phone1" placeholder="01xxxxxxxxx" required>
+                                <input type="tel" id="phone1" name="phone1" placeholder="01xxxxxxxxx" minlength="11"
+                                    pattern="[0-9]{11,}" title="يرجى إدخال 11 رقم على الأقل" required>
                             </div>
 
                             <div class="input-group">
                                 <label for="phone2"><i class="fas fa-phone-alt"></i> رقم تليفون آخر</label>
-                                <input type="tel" id="phone2" name="phone2" placeholder="01xxxxxxxxx" required>
+                                <input type="tel" id="phone2" name="phone2" placeholder="01xxxxxxxxx" minlength="11"
+                                    pattern="[0-9]{11,}" title="يرجى إدخال 11 رقم على الأقل" required>
                             </div>
 
                             <div class="input-group">
@@ -520,7 +605,7 @@
                             <div class="input-group">
                                 <label for="sheikhPhone"><i class="fas fa-mobile-alt"></i> رقم الشيخ المحفظ</label>
                                 <input type="tel" id="sheikhPhone" name="sheikhPhone" placeholder="01xxxxxxxxx"
-                                    required>
+                                    minlength="11" pattern="[0-9]{11,}" title="يرجى إدخال 11 رقم على الأقل" required>
                             </div>
 
                         </div>
@@ -562,49 +647,30 @@
                             </div>
                         </div>
 
-                        <!-- File Uploads -->
-                        <div class="input-group full-width">
-                            <div class="file-uploads-grid">
-                                <div class="file-upload-item">
-                                    <label for="personalPhoto"><i class="fas fa-image"></i> صورة شخصية (4×6)</label>
-                                    <input type="file" id="personalPhoto" name="personalPhoto" accept="image/*"
-                                        required>
-                                    <div class="file-custom-btn"><i class="fas fa-cloud-upload-alt"></i> اختر من
-                                        معرض الصور
-                                    </div>
-                                </div>
-                                <div class="file-upload-item">
-                                    <label for="birthCertificate"><i class="fas fa-address-card"></i> شهادة
-                                        الميلاد</label>
-                                    <input type="file" id="birthCertificate" name="birthCertificate"
-                                        accept="image/*,application/pdf" required>
-                                    <div class="file-custom-btn"><i class="fas fa-cloud-upload-alt"></i> اختر من
-                                        معرض الصور
-                                    </div>
-                                </div>
-                                <div class="file-upload-item">
-                                    <label for="paymentScreenshot"><i class="fas fa-receipt"></i> لقطة شاشة التحويل
-                                        (فودافون كاش / انستا باي)</label>
-                                    <input type="file" id="paymentScreenshot" name="paymentScreenshot" accept="image/*"
-                                        required>
-                                    <div class="file-custom-btn"><i class="fas fa-cloud-upload-alt"></i> اختر من
-                                        معرض الصور
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Terms & Conditions Agreement -->
+                        <div class="terms-agreement"
+                            style="margin-top: 20px; text-align: right; background: rgba(212, 175, 55, 0.05); padding: 15px; border-radius: 10px; border: 1px dashed var(--primary-gold);">
+                            <label class="checkbox-container"
+                                style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-gray); font-size: 0.95rem;">
+                                <input type="checkbox" id="agreeTerms"
+                                    style="width: 20px; height: 20px; cursor: pointer;">
+                                <span>أوافق على كافة الشروط والملاحظات المذكورة أعلاه وأتعهد بصحة البيانات</span>
+                            </label>
                         </div>
-
-                        <div class="form-footer">
-                            <button type="submit" id="submitBtn" class="btn btn-primary submit-btn">
-                                <span class="btn-text">إرسال طلب التقديم</span>
-                                <i class="fas fa-paper-plane"></i>
-                                <div class="loader" id="loader" style="display: none;"></div>
-                            </button>
-                            <p class="form-note">* قريباً سوف يتم الاعلان عن موعد الاختبار</p>
-                        </div>
-                    </form>
                 </div>
+
+                <div class="form-footer">
+                    <button type="submit" id="submitBtn" class="btn btn-primary submit-btn" disabled
+                        style="opacity: 0.5; cursor: not-allowed;">
+                        <span class="btn-text">إرسال طلب التقديم</span>
+                        <i class="fas fa-paper-plane"></i>
+                        <div class="loader" id="loader" style="display: none;"></div>
+                    </button>
+                    <p class="form-note">* قريباً سوف يتم الاعلان عن موعد الاختبار</p>
+                </div>
+                </form>
             </div>
+        </div>
         </div>
     </section>
 
@@ -682,6 +748,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+    </div>
 
     <script src="script.js"></script>
 </body>

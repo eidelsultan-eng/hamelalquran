@@ -167,44 +167,6 @@
             border: none;
             cursor: pointer;
         }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
-            border: 2px solid #d4af37;
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: #fff;
-            font-size: 3rem;
-            cursor: pointer;
-        }
-
-        .no-file {
-            opacity: 0.5;
-            cursor: not-allowed !important;
-            filter: grayscale(1);
-        }
     </style>
 </head>
 
@@ -257,9 +219,11 @@
             </div>
         </div>
 
-        <div class="admin-tabs" style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <div class="admin-tabs" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
             <button onclick="switchTab('registrations')" id="tabRegs" class="btn btn-primary">طلبات التسجيل</button>
             <button onclick="switchTab('messages')" id="tabMsgs" class="btn btn-secondary">رسائل التواصل</button>
+            <button onclick="switchTab('nominations')" id="tabNomins" class="btn btn-secondary">الأم / المعلم
+                المثالي</button>
         </div>
 
         <div id="registrationsSection">
@@ -269,10 +233,11 @@
                         <tr>
                             <th>الاسم</th>
                             <th>المستوى</th>
-                            <th>رقم التليفون</th>
+                            <th>رقم الواتساب</th>
+                            <th>رقم إضافي</th>
                             <th>العنوان</th>
                             <th>الشيخ المحفظ</th>
-                            <th>الملفات</th>
+                            <th>رقم الشيخ</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
@@ -301,13 +266,29 @@
                 </table>
             </div>
         </div>
+
+        <div id="nominationsSection" style="display:none;">
+            <div style="overflow-x: auto;">
+                <table class="registrations-table">
+                    <thead>
+                        <tr>
+                            <th>المرشِّح</th>
+                            <th>رقم الهاتف</th>
+                            <th>الجائزة</th>
+                            <th>المرشَّح له</th>
+                            <th>السبب</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nominationsList">
+                        <!-- الترشيحات ستظهر هنا -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <!-- Image Modal -->
-    <div id="imageModal" class="modal">
-        <span class="modal-close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modalImg">
-    </div>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -344,17 +325,25 @@
         }
 
         function switchTab(tab) {
+            document.getElementById('registrationsSection').style.display = 'none';
+            document.getElementById('messagesSection').style.display = 'none';
+            document.getElementById('nominationsSection').style.display = 'none';
+
+            document.getElementById('tabRegs').className = 'btn btn-secondary';
+            document.getElementById('tabMsgs').className = 'btn btn-secondary';
+            document.getElementById('tabNomins').className = 'btn btn-secondary';
+
             if (tab === 'registrations') {
                 document.getElementById('registrationsSection').style.display = 'block';
-                document.getElementById('messagesSection').style.display = 'none';
                 document.getElementById('tabRegs').className = 'btn btn-primary';
-                document.getElementById('tabMsgs').className = 'btn btn-secondary';
-            } else {
-                document.getElementById('registrationsSection').style.display = 'none';
+            } else if (tab === 'messages') {
                 document.getElementById('messagesSection').style.display = 'block';
-                document.getElementById('tabRegs').className = 'btn btn-secondary';
                 document.getElementById('tabMsgs').className = 'btn btn-primary';
                 loadMessages();
+            } else if (tab === 'nominations') {
+                document.getElementById('nominationsSection').style.display = 'block';
+                document.getElementById('tabNomins').className = 'btn btn-primary';
+                loadNominations();
             }
         }
 
@@ -366,33 +355,28 @@
                 db.collection('registrations').orderBy('submissionDate', 'desc').onSnapshot((snapshot) => {
                     list.innerHTML = '';
                     let stats = { total: 0, l1: 0, l2: 0, l3: 0, l4: 0 };
+                    let grouped = {
+                        'المستوى الأول (القرآن كاملاً)': [],
+                        'المستوى الثاني (نصف القرآن)': [],
+                        'المستوى الثالث (ربع القرآن)': [],
+                        'المستوى الرابع (ثلاثة أجزاء)': []
+                    };
 
                     if (snapshot.empty) {
                         list.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا يوجد مسجلين حالياً</td></tr>';
+                        return;
                     }
 
                     snapshot.forEach(doc => {
                         const data = doc.data();
-                        const row = `
-                            <tr>
-                                <td>${data.studentName}</td>
-                                <td>${data.level}</td>
-                                <td>${data.phone1}</td>
-                                <td>${data.address}</td>
-                                <td>${data.sheikhName}</td>
-                                <td>
-                                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                                        <button onclick="viewImage('${data.photoUrl}', 'الصورة')" class="btn-view btn-img ${(!data.photoUrl || data.photoUrl === '#') ? 'no-file' : ''}"><i class="fas fa-image"></i> صورة</button>
-                                        <button onclick="viewImage('${data.certUrl}', 'الشهادة')" class="btn-view btn-img ${(!data.certUrl || data.certUrl === '#') ? 'no-file' : ''}"><i class="fas fa-id-card"></i> شهادة</button>
-                                        <button onclick="viewImage('${data.paymentUrl}', 'الدفع')" class="btn-view btn-img ${(!data.paymentUrl || data.paymentUrl === '#') ? 'no-file' : ''}"><i class="fas fa-receipt"></i> دفع</button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button onclick="deleteRegistration('${doc.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
-                                </td>
-                            </tr>
-                        `;
-                        list.innerHTML += row;
+                        data.id = doc.id;
+                        if (grouped[data.level]) {
+                            grouped[data.level].push(data);
+                        } else {
+                            // Fallback for levels that might not match exactly
+                            if (!grouped['أخرى']) grouped['أخرى'] = [];
+                            grouped['أخرى'].push(data);
+                        }
 
                         stats.total++;
                         if (data.level && data.level.includes('الأول')) stats.l1++;
@@ -400,6 +384,29 @@
                         if (data.level && data.level.includes('الثالث')) stats.l3++;
                         if (data.level && data.level.includes('الرابع')) stats.l4++;
                     });
+
+                    for (const level in grouped) {
+                        if (grouped[level].length > 0) {
+                            list.innerHTML += `<tr style="background: rgba(212, 175, 55, 0.2);"><td colspan="8" style="text-align:center; font-weight:bold; color:#d4af37;">${level}</td></tr>`;
+                            grouped[level].forEach(data => {
+                                const row = `
+                                    <tr>
+                                        <td>${data.studentName}</td>
+                                        <td>${data.level}</td>
+                                        <td>${data.phone1}</td>
+                                        <td>${data.phone2 || '-'}</td>
+                                        <td>${data.address}</td>
+                                        <td>${data.sheikhName}</td>
+                                        <td>${data.sheikhPhone || '-'}</td>
+                                        <td>
+                                            <button onclick="deleteRegistration('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                        </td>
+                                    </tr>
+                                `;
+                                list.innerHTML += row;
+                            });
+                        }
+                    }
 
                     document.getElementById('totalCount').textContent = stats.total;
                     document.getElementById('level1Count').textContent = stats.l1;
@@ -466,29 +473,57 @@
             }
         }
 
-        function viewImage(url, label) {
-            if (!url || url === '#' || url === 'undefined') {
-                alert('عذراً، لم يتم رفع ' + label + ' لهذا المتسابق.');
-                return;
-            }
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImg');
-            modal.style.display = "flex";
-            modalImg.src = url;
+        async function loadNominations() {
+            const list = document.getElementById('nominationsList');
+            list.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل الترشيحات...</td></tr>';
 
-            // Close modal on click outside image
-            modal.onclick = function (e) {
-                if (e.target === modal) closeModal();
+            try {
+                db.collection('nominations').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+                    list.innerHTML = '';
+                    if (snapshot.empty) {
+                        list.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد ترشيحات حالياً</td></tr>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const date = data.timestamp ? data.timestamp.toDate().toLocaleString('ar-EG') : 'قيد المعالجة';
+                        const row = `
+                            <tr>
+                                <td>${data.nominatorName || 'فاعل خير'}</td>
+                                <td>${data.nominatorPhone || '-'}</td>
+                                <td>${data.awardType}</td>
+                                <td>${data.nomineeName}</td>
+                                <td style="max-width:300px;">${data.reason}</td>
+                                <td>${date}</td>
+                                <td>
+                                    <button onclick="deleteNomination('${doc.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                </td>
+                            </tr>
+                        `;
+                        list.innerHTML += row;
+                    });
+                });
+            } catch (error) {
+                console.error("Error loading nominations: ", error);
             }
         }
 
-        function closeModal() {
-            document.getElementById('imageModal').style.display = "none";
+        async function deleteNomination(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الترشيح؟')) {
+                try {
+                    await db.collection('nominations').doc(id).delete();
+                } catch (error) {
+                    alert('خطأ أثناء الحذف');
+                }
+            }
         }
 
         // Close on ESC key
         document.addEventListener('keydown', (e) => {
-            if (e.key === "Escape") closeModal();
+            if (e.key === "Escape") {
+                // Modal is removed, but keeping ESC listener for future use is optional
+            }
         });
     </script>
 </body>

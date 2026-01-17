@@ -173,6 +173,7 @@
         document.getElementById('printDate').innerText += new Date().toLocaleDateString('ar-EG');
 
         async function fetchForPrint() {
+            const container = document.body;
             const body = document.getElementById('printBody');
 
             try {
@@ -182,21 +183,71 @@
                     return;
                 }
 
-                body.innerHTML = '';
-                let counter = 1;
+                // Group the data
+                let grouped = {
+                    'المستوى الأول (القرآن كاملاً)': [],
+                    'المستوى الثاني (نصف القرآن)': [],
+                    'المستوى الثالث (ربع القرآن)': [],
+                    'المستوى الرابع (ثلاثة أجزاء)': []
+                };
+
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const row = `
-                        <tr>
-                            <td>${counter++}</td>
-                            <td style="text-align: right;">${data.studentName}</td>
-                            <td>${data.level}</td>
-                            <td>${data.phone1}</td>
-                            <td style="text-align: right;">${data.sheikhName}</td>
-                        </tr>
-                    `;
-                    body.innerHTML += row;
+                    if (grouped[data.level]) {
+                        grouped[data.level].push(data);
+                    } else {
+                        if (!grouped['أخرى']) grouped['أخرى'] = [];
+                        grouped['أخرى'].push(data);
+                    }
                 });
+
+                // Clear existing table and replace with grouped tables
+                const tableTemplate = document.querySelector('table');
+                tableTemplate.remove();
+
+                for (const level in grouped) {
+                    if (grouped[level].length > 0) {
+                        const levelHeader = document.createElement('h2');
+                        levelHeader.style.textAlign = 'center';
+                        levelHeader.style.margin = '30px 0 10px';
+                        levelHeader.style.padding = '10px';
+                        levelHeader.style.background = '#f2f2f2';
+                        levelHeader.style.border = '2px solid #000';
+                        levelHeader.innerText = level;
+                        container.insertBefore(levelHeader, document.querySelector('.footer'));
+
+                        const table = document.createElement('table');
+                        table.innerHTML = `
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%">م</th>
+                                    <th style="width: 35%">اسم المتسابق</th>
+                                    <th style="width: 25%">المستوى</th>
+                                    <th style="width: 20%">رقم الهاتف</th>
+                                    <th style="width: 15%">الدرجة</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        `;
+                        const tbody = table.querySelector('tbody');
+                        let counter = 1;
+
+                        grouped[level].forEach(data => {
+                            const row = `
+                                <tr>
+                                    <td>${counter++}</td>
+                                    <td style="text-align: right;">${data.studentName}</td>
+                                    <td>${data.level}</td>
+                                    <td>${data.phone1}</td>
+                                    <td></td>
+                                </tr>
+                            `;
+                            tbody.innerHTML += row;
+                        });
+                        container.insertBefore(table, document.querySelector('.footer'));
+                    }
+                }
+
                 document.getElementById('regCount').innerText = `إجمالي المسجلين: ${snapshot.size}`;
             } catch (error) {
                 console.error(error);

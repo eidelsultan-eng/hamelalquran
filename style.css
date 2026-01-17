@@ -154,8 +154,8 @@ h3 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 12vw;
-    /* Reduced from 18vw to fit the longer phrase */
+    font-size: 5.5vw;
+    /* Reduced significantly for desktop to ensure elegance and single-line display */
     font-family: 'Amiri', serif;
     color: rgba(212, 175, 55, 0.04);
     z-index: -1;
@@ -211,8 +211,9 @@ h3 {
 .hero-title {
     font-family: 'Tajawal', sans-serif;
     font-weight: 900;
-    font-size: 6rem;
-    line-height: 1;
+    font-size: 4rem;
+    /* Reduced from 6rem to stay on one line on most desktop screens */
+    line-height: 1.2;
     margin-bottom: 20px;
     background: linear-gradient(45deg, #fff, var(--primary-gold), #fff);
     -webkit-background-clip: text;
@@ -383,7 +384,7 @@ h3 {
 
 /* --- About Section --- */
 .about {
-    padding: 80px 0;
+    padding: 40px 0;
     background: linear-gradient(to bottom, var(--bg-deep), #0a0a0a);
 }
 
@@ -431,6 +432,15 @@ h3 {
     border-radius: 20px;
     text-align: right;
     transition: var(--transition-slow);
+    height: fit-content;
+    align-self: start;
+}
+
+.about-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 0px;
 }
 
 .about-card:nth-child(even) {
@@ -450,17 +460,25 @@ h3 {
 }
 
 .card-icon-small {
-    font-size: 2.22rem;
+    font-size: 1.5rem;
     color: var(--primary-gold);
-    margin-bottom: 20px;
+    width: 45px;
+    height: 45px;
+    background: rgba(212, 175, 55, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    flex-shrink: 0;
 }
 
 .about-card h3 {
     font-size: 1.8rem;
     color: #fff;
-    margin-bottom: 20px;
     border-right: 4px solid var(--primary-gold);
     padding-right: 15px;
+    margin-bottom: 0;
 }
 
 .about-card p {
@@ -519,11 +537,30 @@ h3 {
     display: flex;
     align-items: center;
     gap: 15px;
-    background: rgba(212, 175, 55, 0.05);
-    padding: 10px 15px;
+    padding: 12px 18px;
     border-radius: 12px;
-    border: 1px solid transparent;
     transition: var(--transition-fast);
+}
+
+.goal-item-new:nth-child(odd) {
+    background: #000;
+    color: #fff;
+    border: 1px solid var(--primary-gold);
+}
+
+.goal-item-new:nth-child(even) {
+    background: #fff;
+    color: #000;
+    border: 1px solid #ddd;
+}
+
+.goal-item-new:nth-child(even) span {
+    color: #000;
+}
+
+.goal-item-new:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
 }
 
 .goal-item-new::before {
@@ -597,7 +634,7 @@ h3 {
 
 /* --- Significance Section --- */
 .significance-section {
-    padding: 60px 0;
+    padding: 30px 0;
     background: var(--bg-deep);
 }
 
@@ -641,6 +678,20 @@ h3 {
     line-height: 1.8;
 }
 
+.white-significance-item {
+    background: #ffffff !important;
+    border-color: #000 !important;
+}
+
+.white-significance-item h3,
+.white-significance-item p {
+    color: #000 !important;
+}
+
+.white-significance-item .sig-icon {
+    color: var(--dark-gold) !important;
+}
+
 .significance-outro {
     text-align: center;
     max-width: 800px;
@@ -659,7 +710,7 @@ h3 {
 
 /* --- Categories (Cards) --- */
 .categories {
-    padding: 80px 0;
+    padding: 40px 0;
     background: #0a0a0a;
 }
 
@@ -729,7 +780,7 @@ h3 {
 
 /* --- Honoring Section --- */
 .honoring {
-    padding: 80px 0;
+    padding: 40px 0;
     position: relative;
     background: linear-gradient(rgba(10, 25, 47, 0.92), rgba(5, 5, 5, 0.98)), url('sheikh_sitting.png');
     background-size: cover;
@@ -814,12 +865,22 @@ h3 {
 
 .award-card {
     background: rgba(255, 255, 255, 0.05);
-    padding: 30px;
-    border-radius: 25px;
+    padding: 25px;
+    border-radius: 20px;
     border: 1px solid var(--glass-border);
-    max-width: 350px;
+    width: 320px;
+    min-height: 300px;
+    height: auto;
     transition: var(--transition-slow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    position: relative;
+    margin: 10px;
 }
+
 
 .award-card:hover {
     transform: scale(1.05);
@@ -848,11 +909,11 @@ h3 {
 /* --- Contact Section --- */
 /* --- Contact Section (Shiny & Attractive) --- */
 .contact {
-    padding: 80px 0;
-    background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%);
-    /* كحلي ملكي */
+    padding: 30px 0 60px 0;
+    background: #050505;
     position: relative;
     overflow: hidden;
+    border-top: 2px solid var(--primary-gold);
 }
 
 .contact::before {
@@ -1014,17 +1075,6 @@ h3 {
     border: 1px solid var(--primary-gold);
 }
 
-.detail-card:nth-child(even) {
-    background: #fff;
-    /* الأبيض */
-    border-color: #000;
-}
-
-.detail-card:nth-child(even) a,
-.detail-card:nth-child(even) h4 {
-    color: #000 !important;
-}
-
 .detail-card a {
     color: var(--primary-gold);
     text-decoration: none;
@@ -1115,11 +1165,44 @@ h3 {
     }
 
     .nav-links {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 5px 0;
+        width: 100%;
+        justify-content: center;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .nav-links::-webkit-scrollbar {
         display: none;
+        /* Hide scrollbar for Chrome/Safari */
+    }
+
+    .nav-links li {
+        white-space: nowrap;
+    }
+
+    .nav-toggle {
+        display: none;
+        /* Hide hamburger menu since links are visible */
+    }
+
+    .logo-text {
+        font-size: 1.4rem;
+        margin-bottom: 5px;
+    }
+
+    .border-nav {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
     }
 
     .hero-title {
-        font-size: 3rem;
+        font-size: 2.4rem;
+        /* Reduced to ensure one line on mobile */
     }
 
     .hero-subtitle-new {
@@ -1194,8 +1277,8 @@ h3 {
     }
 
     .hero-content::before {
-        font-size: 8vw !important;
-        /* Smaller for mobile to ensure one line */
+        font-size: 5.5vw !important;
+        /* Smaller for mobile to ensure it fits on one line */
     }
 
     /* Fix background images for mobile */
@@ -1207,9 +1290,8 @@ h3 {
 
 /* --- Registration Section (Apply) --- */
 .apply-section {
-    padding: 60px 0;
+    padding: 60px 0 20px 0;
     background: #f8f9fa;
-    /* رمادي فاتح جداً للخلفية */
 }
 
 .apply-container {
@@ -1590,10 +1672,11 @@ h3 {
 .mother-gallery {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
-    margin-top: 25px;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 0;
     justify-content: center;
-    padding: 5px;
+    padding: 0;
 }
 
 .mother-img-wrapper {
@@ -1671,7 +1754,13 @@ h3 {
 
 @media (max-width: 480px) {
     .mother-gallery {
+        display: flex;
+        flex-wrap: wrap;
         gap: 10px;
+        margin-top: 15px;
+        margin-bottom: 0;
+        justify-content: center;
+        padding: 0;
     }
 
     .mother-img-wrapper {
@@ -1691,6 +1780,10 @@ h3 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
+}
+
+.gallery-item.hidden {
+    display: none;
 }
 
 .gallery-item {
@@ -1722,6 +1815,139 @@ h3 {
 
 @media (max-width: 768px) {
     .gallery-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 images per row on mobile */
+        gap: 10px;
+        /* Smaller gap on mobile */
     }
+}
+
+/* --- Loyalty Touch Section --- */
+.loyalty-touch {
+    margin-top: 80px;
+    padding: 60px 0;
+    border-top: 1px solid var(--glass-border);
+}
+
+.loyalty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-top: 50px;
+    justify-items: center;
+}
+
+.loyalty-item {
+    text-align: center;
+    max-width: 250px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 30px 20px;
+    border-radius: 25px;
+    border: 1px solid var(--glass-border);
+    transition: var(--transition-slow);
+}
+
+.loyalty-item:hover {
+    background: rgba(212, 175, 55, 0.05);
+    border-color: var(--primary-gold);
+    transform: translateY(-10px);
+}
+
+.loyalty-img-box {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    border: 2px solid var(--primary-gold);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+.loyalty-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.5);
+    /* Respectful tone */
+    transition: var(--transition-slow);
+}
+
+.loyalty-item:hover .loyalty-img {
+    filter: grayscale(0);
+}
+
+.loyalty-name {
+    font-size: 1.3rem;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    /* Ensure name is on one line */
+}
+
+.loyalty-p {
+    font-size: 1rem;
+    color: var(--primary-gold);
+    font-family: 'Amiri', serif;
+}
+
+.loyalty-img.top-focus {
+    object-position: top center;
+}
+
+.gallery-item.hidden {
+    display: none !important;
+}
+
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    padding-top: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(8px);
+}
+
+.lightbox-content {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 80%;
+    border: 3px solid var(--primary-gold);
+    border-radius: 15px;
+    box-shadow: 0 0 50px rgba(212, 175, 55, 0.3);
+    animation: zoom 0.4s ease-out;
+}
+
+@keyframes zoom {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.lightbox-close:hover {
+    color: var(--primary-gold);
 }
