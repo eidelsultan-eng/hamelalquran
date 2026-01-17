@@ -31,6 +31,7 @@
             </div>
             <ul class="nav-links">
                 <li><a href="#hero">الرئيسية</a></li>
+                <li><a href="#apply">التقديم للمسابقة</a></li>
                 <li><a href="#about">عن المسابقة</a></li>
                 <li><a href="#categories">مستويات المسابقة</a></li>
                 <li><a href="#honoring">التكريم</a></li>
@@ -56,8 +57,8 @@
             <p class="hero-description">الحدث القرآني الأكبر والأكثر تميزاً، حيث يلتقي أهل القرآن للتنافس في أشرف ميدان،
                 وفاءً لخدمة كتاب الله وتكريماً لحفظته.</p>
             <div class="hero-btns">
-                <a href="#about" class="btn btn-primary">اكتشف المزيد</a>
-                <a href="#contact" class="btn btn-primary">تواصل للاستفسار</a>
+                <a href="#apply" class="btn btn-primary">قدم الآن إلكترونياً</a>
+                <a href="#about" class="btn btn-secondary">اكتشف المزيد</a>
             </div>
         </div>
         <div class="scroll-indicator">
@@ -219,6 +220,8 @@
         </div>
     </section>
 
+
+
     <!-- Categories Section -->
     <section id="categories" class="categories">
         <div class="container">
@@ -321,6 +324,166 @@
         </div>
     </section>
 
+    <!-- Registration Section -->
+    <section id="apply" class="apply-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <span class="upper-title">انضم إلينا الآن</span>
+                <h2>استمارة تقديم متسابق</h2>
+                <div class="decorative-line"></div>
+            </div>
+
+            <div class="apply-container" data-aos="fade-up">
+                <div class="apply-card glass-card luxury-border">
+                    <div class="form-header">
+                        <div class="form-icon-box">
+                            <i class="fas fa-pen-nib"></i>
+                        </div>
+                        <p>يرجى ملء كافة البيانات بدقة للتقديم في المسابقة</p>
+                    </div>
+
+                    <!-- Important Notes Section -->
+                    <div class="form-notes-box" data-aos="fade-up">
+                        <div class="notes-header">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>ملاحظات هامة جداً قبل التقديم</h3>
+                        </div>
+                        <ul class="notes-list">
+                            <li><i class="fas fa-info-circle"></i> ألا يزيد عمر المتسابق عن 15 سنة.</li>
+                            <li><i class="fas fa-camera"></i> الصورة الشخصية (4×6) يجب أن تكون حديثة وواضحة.</li>
+                            <li><i class="fas fa-home"></i> يجب أن يكون المتسابق من أبناء مدينة مسير.</li>
+                            <li><i class="fas fa-wallet"></i> رسم الاشتراك 20 جنيهاً فقط (صافي) تُحول عبر فودافون كاش أو
+                                انستا باي.</li>
+                            <li class="note-warning"><i class="fas fa-times-circle"></i> في حال عدم الالتزام بالشروط
+                                السابقة كاملة، يعتبر المتسابق مستبعداً ولن يتم اختباره أو إعلان نتيجته.</li>
+                            <li class="note-warning"><i class="fas fa-user-shield"></i> سوف يتم التحقق من بياناتك عند
+                                إرسالها، وفي حالة ثبوت إرسال بيانات مزيفة سوف يتم استبعاد المتسابق فوراً.</li>
+                            <li class="note-info"><i class="fas fa-user-check"></i> هذا النظام يسمح للطلاب بالتقديم مرة
+                                واحدة فقط بالاسم الخاص به، ولن يتم قبول أي محاولات تسجيل متكررة.</li>
+                        </ul>
+                    </div>
+
+                    <form id="registrationForm" class="apply-form">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="studentName"><i class="fas fa-user"></i> اسم المتسابق رباعياً</label>
+                                <input type="text" id="studentName" name="studentName" placeholder="أدخل الاسم الرباعي"
+                                    required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="phone1"><i class="fas fa-phone"></i> رقم التليفون (واتساب)</label>
+                                <input type="tel" id="phone1" name="phone1" placeholder="01xxxxxxxxx" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="phone2"><i class="fas fa-phone-alt"></i> رقم تليفون آخر</label>
+                                <input type="tel" id="phone2" name="phone2" placeholder="01xxxxxxxxx" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="address"><i class="fas fa-map-marker-alt"></i> العنوان بالتفصيل</label>
+                                <input type="text" id="address" name="address"
+                                    placeholder="المدينة - الشارع - علامة مميزة" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="sheikhName"><i class="fas fa-user-tie"></i> الشيخ المحفظ</label>
+                                <input type="text" id="sheikhName" name="sheikhName" placeholder="اسم الشيخ أو الكتاب"
+                                    required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="sheikhPhone"><i class="fas fa-mobile-alt"></i> رقم الشيخ المحفظ</label>
+                                <input type="tel" id="sheikhPhone" name="sheikhPhone" placeholder="01xxxxxxxxx"
+                                    required>
+                            </div>
+
+                        </div>
+
+                        <div class="level-selection">
+                            <h3><i class="fas fa-layer-group"></i> اختر مستوى التسابق</h3>
+                            <div class="levels-grid">
+                                <label class="level-btn">
+                                    <input type="radio" name="level" value="المستوى الأول (القرآن كاملاً)" required>
+                                    <span class="level-content">
+                                        <span class="level-title">المستوى الأول</span>
+                                        <span class="level-desc">القرآن الكريم كاملاً</span>
+                                    </span>
+                                </label>
+
+                                <label class="level-btn">
+                                    <input type="radio" name="level" value="المستوى الثاني (نصف القرآن)">
+                                    <span class="level-content">
+                                        <span class="level-title">المستوى الثاني</span>
+                                        <span class="level-desc">نصف القرآن الكريم</span>
+                                    </span>
+                                </label>
+
+                                <label class="level-btn">
+                                    <input type="radio" name="level" value="المستوى الثالث (ربع القرآن)">
+                                    <span class="level-content">
+                                        <span class="level-title">المستوى الثالث</span>
+                                        <span class="level-desc">ربع القرآن الكريم</span>
+                                    </span>
+                                </label>
+
+                                <label class="level-btn">
+                                    <input type="radio" name="level" value="المستوى الرابع (ثلاثة أجزاء)">
+                                    <span class="level-content">
+                                        <span class="level-title">المستوى الرابع</span>
+                                        <span class="level-desc">ثلاثة أجزاء</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- File Uploads -->
+                        <div class="input-group full-width">
+                            <div class="file-uploads-grid">
+                                <div class="file-upload-item">
+                                    <label for="personalPhoto"><i class="fas fa-image"></i> صورة شخصية (4×6)</label>
+                                    <input type="file" id="personalPhoto" name="personalPhoto" accept="image/*"
+                                        required>
+                                    <div class="file-custom-btn"><i class="fas fa-cloud-upload-alt"></i> اختر من
+                                        معرض الصور
+                                    </div>
+                                </div>
+                                <div class="file-upload-item">
+                                    <label for="birthCertificate"><i class="fas fa-address-card"></i> شهادة
+                                        الميلاد</label>
+                                    <input type="file" id="birthCertificate" name="birthCertificate"
+                                        accept="image/*,application/pdf" required>
+                                    <div class="file-custom-btn"><i class="fas fa-cloud-upload-alt"></i> اختر من
+                                        معرض الصور
+                                    </div>
+                                </div>
+                                <div class="file-upload-item">
+                                    <label for="paymentScreenshot"><i class="fas fa-receipt"></i> لقطة شاشة التحويل
+                                        (فودافون كاش / انستا باي)</label>
+                                    <input type="file" id="paymentScreenshot" name="paymentScreenshot" accept="image/*"
+                                        required>
+                                    <div class="file-custom-btn"><i class="fas fa-cloud-upload-alt"></i> اختر من
+                                        معرض الصور
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-footer">
+                            <button type="submit" id="submitBtn" class="btn btn-primary submit-btn">
+                                <span class="btn-text">إرسال طلب التقديم</span>
+                                <i class="fas fa-paper-plane"></i>
+                                <div class="loader" id="loader" style="display: none;"></div>
+                            </button>
+                            <p class="form-note">* قريباً سوف يتم الاعلان عن موعد الاختبار</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section -->
     <section id="contact" class="contact">
         <div class="container">
@@ -342,7 +505,7 @@
                         <i class="fab fa-whatsapp"></i>
                         <h3>واتساب</h3>
                         <p>تواصل سريع للاستفسارات</p>
-                        <a href="https://wa.me/201005252162">اضغط هنا</a>
+                        <a href="https://wa.me/201002200841">اضغط هنا</a>
                     </div>
                     <div class="detail-card">
                         <i class="fas fa-map-marker-alt"></i>
@@ -387,6 +550,11 @@
             offset: 100
         });
     </script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
     <script src="script.js"></script>
 </body>
 

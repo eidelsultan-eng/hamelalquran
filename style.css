@@ -1148,17 +1148,337 @@ h3,
     }
 }
 
-@media (max-width: 480px) {
-    .hero-title {
-        font-size: 2.5rem;
+/* --- Registration Section (Apply) --- */
+.apply-section {
+    padding: 100px 0;
+    background: linear-gradient(to bottom, #0a0a0a, var(--bg-deep));
+}
+
+.apply-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.apply-card {
+    padding: 50px 40px;
+    border-radius: 30px;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.form-icon-box {
+    font-size: 3rem;
+    color: var(--primary-gold);
+    margin-bottom: 20px;
+}
+
+.form-header p {
+    color: var(--text-gray);
+    font-size: 1.2rem;
+}
+
+.apply-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px 20px;
+    margin-bottom: 40px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.input-group.full-width {
+    grid-column: span 2;
+}
+
+.input-group label {
+    font-weight: 600;
+    color: var(--light-gold);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-group input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    padding: 15px 20px;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    transition: var(--transition-fast);
+    width: 100%;
+}
+
+.input-group input:focus {
+    border-color: var(--primary-gold);
+    background: rgba(212, 175, 55, 0.05);
+    outline: none;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+}
+
+/* File Upload Styles */
+.file-uploads-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.file-upload-item {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px dashed var(--glass-border);
+    border-radius: 15px;
+    padding: 25px 15px;
+    text-align: center;
+    transition: var(--transition-fast);
+}
+
+.file-upload-item:hover {
+    border-color: var(--primary-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.file-upload-item input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.file-custom-btn {
+    margin-top: 15px;
+    color: var(--primary-gold);
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-custom-btn i {
+    font-size: 2rem;
+}
+
+/* Level Selection */
+.level-selection {
+    margin-bottom: 50px;
+}
+
+.level-selection h3 {
+    font-size: 1.8rem;
+    color: var(--primary-gold);
+    margin-bottom: 30px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.levels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.level-btn {
+    cursor: pointer;
+    position: relative;
+}
+
+.level-btn input {
+    position: absolute;
+    opacity: 0;
+}
+
+.level-content {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    padding: 20px 15px;
+    border-radius: 15px;
+    text-align: center;
+    transition: var(--transition-fast);
+    height: 100%;
+}
+
+.level-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.level-desc {
+    font-size: 0.95rem;
+    color: var(--text-gray);
+}
+
+.level-btn input:checked+.level-content {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: var(--primary-gold);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+}
+
+.level-btn input:checked+.level-content .level-title {
+    color: var(--primary-gold);
+}
+
+.form-footer {
+    text-align: center;
+}
+
+.submit-btn {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-size: 1.4rem;
+    padding: 20px;
+    margin: 0 auto 20px;
+    background: linear-gradient(45deg, var(--dark-gold), var(--primary-gold));
+}
+
+.form-note {
+    color: var(--text-gray);
+    font-style: italic;
+    font-size: 0.95rem;
+}
+
+/* --- Form Notes Box --- */
+.form-notes-box {
+    background: rgba(0, 191, 255, 0.05);
+    border: 1px solid rgba(0, 191, 255, 0.3);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-notes-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px;
+    height: 100%;
+    background: #00BFFF;
+}
+
+.notes-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    color: #00BFFF;
+}
+
+.notes-header i {
+    font-size: 1.5rem;
+}
+
+.notes-header h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.notes-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.notes-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-gray);
+    font-size: 1.05rem;
+}
+
+.notes-list li i {
+    color: #00BFFF;
+    font-size: 0.9rem;
+}
+
+.notes-list li.note-warning {
+    color: #ff4d4d;
+    font-weight: 700;
+    grid-column: span 2;
+    border-top: 1px solid rgba(255, 77, 77, 0.2);
+    padding-top: 10px;
+    margin-top: 5px;
+}
+
+.notes-list li.note-warning i {
+    color: #ff4d4d;
+}
+
+@media (max-width: 768px) {
+    .notes-list {
+        grid-template-columns: 1fr;
     }
 
-    .section-header h2,
-    .section-header-centered h2 {
-        font-size: 1.8rem;
+    .notes-list li.note-warning {
+        grid-column: span 1;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .apply-card {
+        padding: 30px 20px;
     }
 
-    .contact-info h2 {
-        font-size: 2.2rem;
+    .apply-form .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
+
+    .input-group.full-width {
+        grid-column: span 1;
+    }
+
+    .submit-btn {
+        font-size: 1.2rem;
+        padding: 15px;
+    }
+}
+
+/* --- Loader --- */
+.loader {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
