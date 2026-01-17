@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كشف المتقدمين للمسابقة | للطباعة</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amiri:wght@700&family=Aref+Ruqaa:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: white;
+            color: black;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px double #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-family: 'Aref Ruqaa', serif;
+            font-size: 45px;
+            margin: 0;
+            color: #000;
+            letter-spacing: 1px;
+        }
+
+        .header h1::before,
+        .header h1::after {
+            content: " ✽ ";
+            font-size: 30px;
+            vertical-align: middle;
+            color: #aa8c2c;
+        }
+
+        .header p {
+            font-size: 18px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+
+        .print-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-around;
+            font-weight: bold;
+        }
+
+        .no-print {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #d4af37;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            table {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="no-print" onclick="window.print()">اضغط هنا للطباعة</button>
+
+    <div class="header">
+        <h1>مسابقة حامل القرآن الكريم بمسير</h1>
+        <p>تحت رعاية: مطبعة أبو خضرة و شباب مسير</p>
+        <p>كشف المتقدمين المسجلين إلكترونياً</p>
+    </div>
+
+    <div class="print-info">
+        <span id="regCount">إجمالي المسجلين: ...</span>
+        <span id="printDate">التاريخ: </span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 5%">م</th>
+                <th style="width: 30%">اسم المتسابق</th>
+                <th style="width: 25%">المستوى</th>
+                <th style="width: 20%">رقم الهاتف</th>
+                <th style="width: 20%">الشيخ المحفظ</th>
+            </tr>
+        </thead>
+        <tbody id="printBody">
+            <tr>
+                <td colspan="5">جاري جلب البيانات من السحابة...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <div>توقيع مسؤول التنظيم</div>
+        <div>توقيع لجنة التحكيم</div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA6fnq6E4P4aLvtOLRfUogPNLV__MIlcD8",
+            authDomain: "dddd-3161a.firebaseapp.com",
+            projectId: "dddd-3161a",
+            storageBucket: "dddd-3161a.firebasestorage.app",
+            messagingSenderId: "295943367803",
+            appId: "1:295943367803:web:5c859045aad563af4a06de",
+            measurementId: "G-M3FJ7TGZYJ"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.getElementById('printDate').innerText += new Date().toLocaleDateString('ar-EG');
+
+        async function fetchForPrint() {
+            const body = document.getElementById('printBody');
+
+            try {
+                const snapshot = await db.collection('registrations').orderBy('submissionDate', 'asc').get();
+                if (snapshot.empty) {
+                    body.innerHTML = '<tr><td colspan="5">لا توجد بيانات حالياً</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = '';
+                let counter = 1;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const row = `
+                        <tr>
+                            <td>${counter++}</td>
+                            <td style="text-align: right;">${data.studentName}</td>
+                            <td>${data.level}</td>
+                            <td>${data.phone1}</td>
+                            <td style="text-align: right;">${data.sheikhName}</td>
+                        </tr>
+                    `;
+                    body.innerHTML += row;
+                });
+                document.getElementById('regCount').innerText = `إجمالي المسجلين: ${snapshot.size}`;
+            } catch (error) {
+                console.error(error);
+                body.innerHTML = '<tr><td colspan="5">حدث خطأ أثناء جلب البيانات</td></tr>';
+            }
+        }
+
+        fetchForPrint();
+    </script>
+</body>
+
+</html>

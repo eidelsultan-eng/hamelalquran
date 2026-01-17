@@ -57,27 +57,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Contact Form (WhatsApp)
+    // Contact Form (WhatsApp + Firebase)
     const contactForm = document.querySelector('.contact-form');
     if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const name = contactForm.querySelector('input[placeholder="الاسم"]').value;
             const phone = contactForm.querySelector('input[placeholder="رقم الهاتف"]').value;
             const message = contactForm.querySelector('textarea').value;
 
-            const whatsappNumber = '201002200841';
-            let messageText = `📬 *رسالة جديدة من الموقع* \n\n`;
-            messageText += `👤 *الاسم:* ${name}\n`;
-            messageText += `📱 *رقم الهاتف:* ${phone}\n`;
-            messageText += `💬 *الرسالة:* ${message}`;
+            // Feedback: Change button text
+            const submitBtn = contactForm.querySelector('button');
+            const originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'جاري الإرسال...';
 
-            const encodedText = encodeURIComponent(messageText);
-            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
+            try {
+                // Save to Firebase if configured
+                if (isFirebaseConfigured && db) {
+                    await db.collection('messages').add({
+                        name,
+                        phone,
+                        message,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'جديد'
+                    });
+                }
 
-            window.open(whatsappUrl, '_blank');
-            contactForm.reset();
+                const whatsappNumber = '201002200841';
+                let messageText = `📬 *رسالة جديدة من الموقع* \n\n`;
+                messageText += `👤 *الاسم:* ${name}\n`;
+                messageText += `📱 *رقم الهاتف:* ${phone}\n`;
+                messageText += `💬 *الرسالة:* ${message}`;
+
+                const encodedText = encodeURIComponent(messageText);
+                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
+
+                window.open(whatsappUrl, '_blank');
+                contactForm.reset();
+                alert('تم إرسال رسالتك وحفظها بنجاح.');
+            } catch (error) {
+                console.error("Error saving message:", error);
+                alert('حدث خطأ أثناء الإرسال، سيتم فتح الواتساب فقط.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
         });
     }
 
@@ -126,12 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Firebase Configuration ---
     const firebaseConfig = {
-        apiKey: "AIzaSyDIT0tkxLlYkEidEtwTHvZimvQuVM-gDyw",
-        authDomain: "hamel-a89ce.firebaseapp.com",
-        projectId: "hamel-a89ce",
-        storageBucket: "hamel-a89ce.firebasestorage.app",
-        messagingSenderId: "678005054790",
-        appId: "1:678005054790:web:14a17c94ac0d3b2da71947"
+        apiKey: "AIzaSyA6fnq6E4P4aLvtOLRfUogPNLV__MIlcD8",
+        authDomain: "dddd-3161a.firebaseapp.com",
+        projectId: "dddd-3161a",
+        storageBucket: "dddd-3161a.firebasestorage.app",
+        messagingSenderId: "295943367803",
+        appId: "1:295943367803:web:5c859045aad563af4a06de",
+        measurementId: "G-M3FJ7TGZYJ"
     };
 
     // Initialize Firebase
@@ -169,20 +196,21 @@ document.addEventListener('DOMContentLoaded', () => {
         registrationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const studentName = registrationForm.querySelector('input[name="studentName"]').value;
+            const studentName = registrationForm.querySelector('input[name="studentName"]').value.trim();
 
-            // Check if already registered
             if (localStorage.getItem(`registered_${studentName}`)) {
                 alert('عذراً، لقد قمت بالتقديم مسبقاً بهذا الاسم.');
                 return;
             }
 
-            // UI Feedback
             if (submitBtn) {
                 submitBtn.disabled = true;
                 if (loader) loader.style.display = 'inline-block';
-                if (btnText) btnText.textContent = 'جاري الحفظ والرفع...';
+                if (btnText) btnText.textContent = 'جاري المعالجة...';
             }
+
+            // Timeout function
+            const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error("استغرق الرفع وقتاً طويلاً جداً (Timeout)")), ms));
 
             try {
                 const formData = new FormData(registrationForm);
@@ -194,42 +222,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 const level = formData.get('level');
 
                 let photoUrl = "#", certUrl = "#", paymentUrl = "#";
+                let uploadSuccess = false;
+                let dataSavedToCloud = false; // New variable to track if textual data was saved
 
-                // Upload to Firebase if configured
-                if (isFirebaseConfigured && db && storage) {
-                    const uploadFile = async (file, folder) => {
-                        if (!file || file.size === 0) return null;
-                        const storageRef = storage.ref(`${folder}/${Date.now()}_${file.name}`);
-                        const snapshot = await storageRef.put(file);
-                        return await snapshot.ref.getDownloadURL();
-                    };
+                if (isFirebaseConfigured && db) {
+                    // 1. Try to upload files (Optional/Best Effort)
+                    if (storage) {
+                        try {
+                            if (btnText) btnText.textContent = 'جاري رفع الملفات...';
 
-                    const personalPhoto = document.getElementById('personalPhoto').files[0];
-                    const birthCertificate = document.getElementById('birthCertificate').files[0];
-                    const paymentScreenshot = document.getElementById('paymentScreenshot').files[0];
+                            const uploadWithProgress = async (file, folder, label) => {
+                                if (!file || file.size === 0) return "#";
+                                const storageRef = storage.ref(`${folder}/${Date.now()}_${file.name}`);
+                                const uploadTask = storageRef.put(file);
+                                const snapshot = await Promise.race([uploadTask, timeout(15000)]); // 15 seconds per file
+                                return await snapshot.ref.getDownloadURL();
+                            };
 
-                    photoUrl = await uploadFile(personalPhoto, 'personal_photos');
-                    certUrl = await uploadFile(birthCertificate, 'birth_certificates');
-                    paymentUrl = await uploadFile(paymentScreenshot, 'payment_screenshots');
+                            const personalPhoto = document.getElementById('personalPhoto').files[0];
+                            const birthCertificate = document.getElementById('birthCertificate').files[0];
+                            const paymentScreenshot = document.getElementById('paymentScreenshot').files[0];
 
-                    await db.collection('registrations').add({
-                        studentName, phone1, phone2, address, sheikhName, sheikhPhone, level,
-                        photoUrl, certUrl, paymentUrl,
-                        submissionDate: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                            photoUrl = await uploadWithProgress(personalPhoto, 'personal_photos', 'الصورة الشخصية');
+                            certUrl = await uploadWithProgress(birthCertificate, 'birth_certificates', 'شهادة الميلاد');
+                            paymentUrl = await uploadWithProgress(paymentScreenshot, 'payment_screenshots', 'إيصال الدفع');
+                            uploadSuccess = true;
+                        } catch (fileErr) {
+                            console.warn("File upload failed, proceeding with data only:", fileErr);
+                        }
+                    }
+
+                    // 2. ALWAYS try to save the textual data
+                    try {
+                        if (btnText) btnText.textContent = 'جاري حفظ البيانات الأساسية...';
+                        await Promise.race([
+                            db.collection('registrations').add({
+                                studentName, phone1, phone2, address, sheikhName, sheikhPhone, level,
+                                photoUrl, certUrl, paymentUrl,
+                                imagesUploaded: uploadSuccess,
+                                submissionDate: firebase.firestore.FieldValue.serverTimestamp()
+                            }),
+                            timeout(10000)
+                        ]);
+                        dataSavedToCloud = true;
+                    } catch (dbErr) {
+                        console.error("Cloud DB Error:", dbErr);
+                    }
                 }
 
-                // WhatsApp
+                // WhatsApp Logic
                 const whatsappNumber = '201002200841';
                 let messageText = `✨ *استمارة تقديم جديدة - مسابقة حامل القرآن* ✨\n\n`;
                 messageText += `📝 *بيانات المتسابق:*\n━━━━━━━━━━━━━━━\n👤 *الاسم:* ${studentName}\n🏆 *المستوى:* ${level}\n\n`;
                 messageText += `📞 *بيانات التواصل:*\n━━━━━━━━━━━━━━━\n📱 *رقم الواتساب:* ${phone1}\n☎️ *رقم إضافي:* ${phone2}\n📍 *العنوان:* ${address}\n\n`;
                 messageText += `👨‍🏫 *بيانات المحفظ:*\n━━━━━━━━━━━━━━━\n🕋 *الشيخ المحفظ:* ${sheikhName}\n📞 *رقم الشيخ:* ${sheikhPhone}\n\n`;
 
-                if (!isFirebaseConfigured) {
-                    messageText += `⚠️ *تنبيه:* يرجى إرفاق الصور في المحادثة الآن (لم يتم الرفع التلقائي).`;
-                } else {
-                    messageText += `✅ *ملاحظة:* تم حفظ البيانات في قاعدة بيانات الموقع.`;
+                if (!uploadSuccess) {
+                    messageText += `⚠️ *تنبيه:* يرجى إرفاق الصور (الشخصية، الشهادة، الإيصال) في هذه المحادثة الآن.`;
+                }
+
+                if (dataSavedToCloud) {
+                    messageText += `\n✅ *ملاحظة:* تم حفظ البيانات نصياً في لوحة التحكم.`;
                 }
 
                 const encodedText = encodeURIComponent(messageText);
@@ -241,15 +294,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> اختر من معرض الصور`;
                 });
 
-                if (!isFirebaseConfigured) {
-                    alert('تنبيه: الموقع غير مربوط بـ Firebase. تم فتح الواتساب فقط.');
+                if (dataSavedToCloud) {
+                    alert(uploadSuccess ? 'تم التسجيل ورفع الصور بنجاح!' : 'تم حفظ البيانات بنجاح، يرجى إرسال الصور عبر الواتساب الآن.');
                 } else {
-                    alert('تم التسجيل بنجاح!');
+                    alert('تم فتح الواتساب لإرسال البيانات.');
                 }
 
             } catch (error) {
-                console.error("Error:", error);
-                alert('حدث خطأ: ' + error.message);
+                console.error("Critical Error:", error);
+                alert('حدث خطأ غير متوقع: ' + error.message);
             } finally {
                 if (submitBtn) {
                     submitBtn.disabled = false;
