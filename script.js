@@ -223,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const formData = new FormData(registrationForm);
+                const gender = formData.get('gender');
                 const phone1 = formData.get('phone1');
                 const phone2 = formData.get('phone2');
                 const address = formData.get('address');
@@ -237,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (btnText) btnText.textContent = 'جاري حفظ البيانات...';
                         await Promise.race([
                             db.collection('registrations').add({
-                                studentName, phone1, phone2, address, sheikhName, sheikhPhone, level,
+                                studentName, gender, phone1, phone2, address, sheikhName, sheikhPhone, level,
                                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
                             }),
                             timeout(10000)
@@ -248,22 +249,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // WhatsApp Logic
-                const whatsappNumber = '201002200841';
-                let messageText = `✨ *استمارة تقديم جديدة - مسابقة حامل القرآن* ✨\n\n`;
-                messageText += `📝 *بيانات المتسابق:*\n━━━━━━━━━━━━━━━\n👤 *الاسم:* ${studentName}\n🏆 *المستوى:* ${level}\n\n`;
-                messageText += `📞 *بيانات التواصل:*\n━━━━━━━━━━━━━━━\n📱 *رقم الواتساب:* ${phone1}\n☎️ *رقم إضافي:* ${phone2}\n📍 *العنوان:* ${address}\n\n`;
-                messageText += `👨‍🏫 *بيانات المحفظ:*\n━━━━━━━━━━━━━━━\n🕋 *الشيخ المحفظ:* ${sheikhName}\n📞 *رقم الشيخ:* ${sheikhPhone}\n\n`;
-                messageText += `⚠️ *ملاحظة:* يرجى إحضار الصورة الشخصية وشهادة الميلاد ورسم الاشتراك (20 ج) يوم الاختبار.`;
-
-                const encodedText = encodeURIComponent(messageText);
-                window.open(`https://wa.me/${whatsappNumber}?text=${encodedText}`, '_blank');
-
                 localStorage.setItem(`registered_${studentName}`, 'true');
                 registrationForm.reset();
                 if (agreeTerms) agreeTerms.checked = false;
 
-                alert('تم التقديم بنجاح! سيتم تحويلك الآن لتأكيد البيانات عبر واتساب.');
+                alert('تم التقديم بنجاح! شكراً لك.');
 
             } catch (error) {
                 console.error("Critical Error:", error);

@@ -118,7 +118,7 @@
 <body>
 
     <div class="no-print controls"
-        style="position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 1000;">
+        style="position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
         <select id="levelFilter"
             style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Cairo', sans-serif; cursor: pointer;">
             <option value="all">كل المستويات</option>
@@ -127,8 +127,14 @@
             <option value="المستوى الثالث (ربع القرآن)">المستوى الثالث (ربع القرآن)</option>
             <option value="المستوى الرابع (ثلاثة أجزاء)">المستوى الرابع (ثلاثة أجزاء)</option>
         </select>
+        <select id="genderFilter"
+            style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Cairo', sans-serif; cursor: pointer;">
+            <option value="all">الجميع (بنين/بنات)</option>
+            <option value="بنين">بنين</option>
+            <option value="بنات">بنات</option>
+        </select>
         <button class="no-print-btn" onclick="window.print()"
-            style="padding: 10px 20px; background: #d4af37; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);">اضغط
+            style="padding: 10px 20px; background: #d4af37; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">اضغط
             هنا للطباعة</button>
     </div>
 
@@ -178,6 +184,7 @@
         async function fetchForPrint() {
             const printContent = document.getElementById('printContent');
             const selectedLevel = document.getElementById('levelFilter').value;
+            const selectedGender = document.getElementById('genderFilter').value;
 
             try {
                 if (allData.length === 0) {
@@ -189,7 +196,7 @@
                     snapshot.forEach(doc => allData.push(doc.data()));
                 }
 
-                renderTables(selectedLevel);
+                renderTables(selectedLevel, selectedGender);
 
             } catch (error) {
                 console.error(error);
@@ -197,17 +204,18 @@
             }
         }
 
-        function renderTables(filter) {
+        function renderTables(levelFilter, genderFilter) {
             const printContent = document.getElementById('printContent');
             printContent.innerHTML = '';
 
-            let filteredData = allData;
-            if (filter !== 'all') {
-                filteredData = allData.filter(d => d.level === filter);
-            }
+            let filteredData = allData.filter(d => {
+                const levelMatch = (levelFilter === 'all' || d.level === levelFilter);
+                const genderMatch = (genderFilter === 'all' || d.gender === genderFilter);
+                return levelMatch && genderMatch;
+            });
 
             if (filteredData.length === 0) {
-                printContent.innerHTML = '<div style="text-align:center; padding: 20px;">لا توجد بيانات لهذا المستوى</div>';
+                printContent.innerHTML = '<div style="text-align:center; padding: 20px;">لا توجد بيانات تطابق هذه الاختيارات</div>';
                 document.getElementById('regCount').innerText = `إجمالي المعروض: 0`;
                 return;
             }
@@ -234,11 +242,12 @@
                     <thead>
                         <tr>
                             <th style="width: 5%">م</th>
-                            <th style="width: 25%">اسم المتسابق</th>
+                            <th style="width: 20%">اسم المتسابق</th>
+                            <th style="width: 10%">النوع</th>
                             <th style="width: 20%">المستوى</th>
                             <th style="width: 15%">رقم الهاتف</th>
-                            <th style="width: 12.5%">الشروط</th>
-                            <th style="width: 12.5%">الحضور</th>
+                            <th style="width: 10%">الشروط</th>
+                            <th style="width: 10%">الحضور</th>
                             <th style="width: 10%">الدرجة</th>
                         </tr>
                     </thead>
@@ -252,6 +261,7 @@
                         <tr>
                             <td>${counter++}</td>
                             <td style="text-align: right;">${data.studentName}</td>
+                            <td>${data.gender || '-'}</td>
                             <td>${data.level}</td>
                             <td>${data.phone1}</td>
                             <td></td>
@@ -267,8 +277,12 @@
             document.getElementById('regCount').innerText = `إجمالي المعروض: ${filteredData.length}`;
         }
 
-        document.getElementById('levelFilter').addEventListener('change', (e) => {
-            renderTables(e.target.value);
+        document.getElementById('levelFilter').addEventListener('change', () => {
+            renderTables(document.getElementById('levelFilter').value, document.getElementById('genderFilter').value);
+        });
+
+        document.getElementById('genderFilter').addEventListener('change', () => {
+            renderTables(document.getElementById('levelFilter').value, document.getElementById('genderFilter').value);
         });
 
         fetchForPrint();

@@ -123,6 +123,25 @@
             margin-right: 5px;
         }
 
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .badge-blue {
+            background: rgba(0, 123, 255, 0.2);
+            color: #007bff;
+            border: 1px solid #007bff;
+        }
+
+        .badge-pink {
+            background: rgba(255, 105, 180, 0.2);
+            color: #ff69b4;
+            border: 1px solid #ff69b4;
+        }
+
         .login-overlay {
             position: fixed;
             top: 0;
@@ -229,11 +248,43 @@
         </div>
 
         <div id="registrationsSection">
+            <!-- Sub-tabs for Level and Gender -->
+            <div class="registration-filters"
+                style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <div
+                    style="display: flex; gap: 10px; flex-wrap: wrap; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;">
+                    <span
+                        style="color: #d4af37; font-weight: bold; align-self: center; margin-left: 10px;">المستوى:</span>
+                    <button onclick="setLevelFilter('all')" id="btnLAll" class="btn btn-primary"
+                        style="padding: 5px 15px; font-size: 0.9rem;">الكل</button>
+                    <button onclick="setLevelFilter('المستوى الأول (القرآن كاملاً)')" id="btnL1"
+                        class="btn btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">الأول</button>
+                    <button onclick="setLevelFilter('المستوى الثاني (نصف القرآن)')" id="btnL2" class="btn btn-secondary"
+                        style="padding: 5px 15px; font-size: 0.9rem;">الثاني</button>
+                    <button onclick="setLevelFilter('المستوى الثالث (ربع القرآن)')" id="btnL3" class="btn btn-secondary"
+                        style="padding: 5px 15px; font-size: 0.9rem;">الثالث</button>
+                    <button onclick="setLevelFilter('المستوى الرابع (ثلاثة أجزاء)')" id="btnL4"
+                        class="btn btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">الرابع</button>
+                </div>
+                <div
+                    style="display: flex; gap: 10px; flex-wrap: wrap; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;">
+                    <span
+                        style="color: #d4af37; font-weight: bold; align-self: center; margin-left: 10px;">النوع:</span>
+                    <button onclick="setGenderFilter('all')" id="btnGAll" class="btn btn-primary"
+                        style="padding: 5px 15px; font-size: 0.9rem;">الجميع</button>
+                    <button onclick="setGenderFilter('بنين')" id="btnGBoy" class="btn btn-secondary"
+                        style="padding: 5px 15px; font-size: 0.9rem;">بنين</button>
+                    <button onclick="setGenderFilter('بنات')" id="btnGGirl" class="btn btn-secondary"
+                        style="padding: 5px 15px; font-size: 0.9rem;">بنات</button>
+                </div>
+            </div>
+
             <div style="overflow-x: auto;">
                 <table class="registrations-table">
                     <thead>
                         <tr>
                             <th>الاسم</th>
+                            <th>النوع</th>
                             <th>المستوى</th>
                             <th>رقم الواتساب</th>
                             <th>رقم إضافي</th>
@@ -358,36 +409,51 @@
             }
         }
 
-        async function loadData() {
-            const list = document.getElementById('registrationsList');
-            list.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل البيانات...</td></tr>';
+        let currentLevelFilter = 'all';
+        let currentGenderFilter = 'all';
+        let allRegistrations = [];
 
+        function setLevelFilter(val) {
+            currentLevelFilter = val;
+            updateFilterButtons('L', val);
+            renderRegistrations();
+        }
+
+        function setGenderFilter(val) {
+            currentGenderFilter = val;
+            updateFilterButtons('G', val);
+            renderRegistrations();
+        }
+
+        function updateFilterButtons(prefix, val) {
+            const btns = prefix === 'L' ?
+                ['all', 'المستوى الأول (القرآن كاملاً)', 'المستوى الثاني (نصف القرآن)', 'المستوى الثالث (ربع القرآن)', 'المستوى الرابع (ثلاثة أجزاء)'] :
+                ['all', 'بنين', 'بنات'];
+
+            const btnIds = prefix === 'L' ?
+                ['btnLAll', 'btnL1', 'btnL2', 'btnL3', 'btnL4'] :
+                ['btnGAll', 'btnGBoy', 'btnGGirl'];
+
+            btnIds.forEach((id, idx) => {
+                const btn = document.getElementById(id);
+                if (btns[idx] === val) {
+                    btn.className = 'btn btn-primary';
+                } else {
+                    btn.className = 'btn btn-secondary';
+                }
+            });
+        }
+
+        async function loadData() {
             try {
                 db.collection('registrations').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
-                    list.innerHTML = '';
+                    allRegistrations = [];
                     let stats = { total: 0, l1: 0, l2: 0, l3: 0, l4: 0 };
-                    let grouped = {
-                        'المستوى الأول (القرآن كاملاً)': [],
-                        'المستوى الثاني (نصف القرآن)': [],
-                        'المستوى الثالث (ربع القرآن)': [],
-                        'المستوى الرابع (ثلاثة أجزاء)': []
-                    };
-
-                    if (snapshot.empty) {
-                        list.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا يوجد مسجلين حالياً</td></tr>';
-                        return;
-                    }
 
                     snapshot.forEach(doc => {
                         const data = doc.data();
                         data.id = doc.id;
-                        if (grouped[data.level]) {
-                            grouped[data.level].push(data);
-                        } else {
-                            // Fallback for levels that might not match exactly
-                            if (!grouped['أخرى']) grouped['أخرى'] = [];
-                            grouped['أخرى'].push(data);
-                        }
+                        allRegistrations.push(data);
 
                         stats.total++;
                         if (data.level) {
@@ -398,37 +464,62 @@
                         }
                     });
 
-                    for (const level in grouped) {
-                        if (grouped[level].length > 0) {
-                            list.innerHTML += `<tr style="background: rgba(212, 175, 55, 0.2);"><td colspan="8" style="text-align:center; font-weight:bold; color:#d4af37;">${level}</td></tr>`;
-                            grouped[level].forEach(data => {
-                                const row = `
-                                    <tr>
-                                        <td>${data.studentName}</td>
-                                        <td>${data.level}</td>
-                                        <td>${data.phone1}</td>
-                                        <td>${data.phone2 || '-'}</td>
-                                        <td>${data.address}</td>
-                                        <td>${data.sheikhName}</td>
-                                        <td>${data.sheikhPhone || '-'}</td>
-                                        <td>
-                                            <button onclick="deleteRegistration('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
-                                        </td>
-                                    </tr>
-                                `;
-                                list.innerHTML += row;
-                            });
-                        }
-                    }
-
                     document.getElementById('totalCount').textContent = stats.total;
                     document.getElementById('level1Count').textContent = stats.l1;
                     document.getElementById('level2Count').textContent = stats.l2;
                     document.getElementById('level3Count').textContent = stats.l3;
                     document.getElementById('level4Count').textContent = stats.l4;
+
+                    renderRegistrations();
                 });
             } catch (error) {
                 console.error("Error loading data: ", error);
+            }
+        }
+
+        function renderRegistrations() {
+            const list = document.getElementById('registrationsList');
+            list.innerHTML = '';
+
+            let filtered = allRegistrations.filter(reg => {
+                const levelMatch = (currentLevelFilter === 'all' || reg.level === currentLevelFilter);
+                const genderMatch = (currentGenderFilter === 'all' || reg.gender === currentGenderFilter);
+                return levelMatch && genderMatch;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<tr><td colspan="9" style="text-align:center;">لا توجد بيانات تطابق الاختيار</td></tr>';
+                return;
+            }
+
+            // Grouping by level for visual separation
+            let grouped = {};
+            filtered.forEach(data => {
+                if (!grouped[data.level]) grouped[data.level] = [];
+                grouped[data.level].push(data);
+            });
+
+            for (const level in grouped) {
+                list.innerHTML += `<tr style="background: rgba(212, 175, 55, 0.2);"><td colspan="9" style="text-align:right; font-weight:bold; color:#d4af37; padding-right: 20px;">📂 ${level} (${grouped[level].length})</td></tr>`;
+
+                grouped[level].forEach(data => {
+                    const row = `
+                        <tr>
+                            <td>${data.studentName}</td>
+                            <td><span class="badge ${data.gender === 'بنين' ? 'badge-blue' : 'badge-pink'}">${data.gender || '-'}</span></td>
+                            <td>${data.level}</td>
+                            <td>${data.phone1}</td>
+                            <td>${data.phone2 || '-'}</td>
+                            <td>${data.address}</td>
+                            <td>${data.sheikhName}</td>
+                            <td>${data.sheikhPhone || '-'}</td>
+                            <td>
+                                <button onclick="deleteRegistration('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                            </td>
+                        </tr>
+                    `;
+                    list.innerHTML += row;
+                });
             }
         }
 
