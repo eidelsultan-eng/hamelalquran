@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasPlus = originalText.includes('+');
             const hasK = originalText.includes('K');
             const target = parseInt(originalText.replace('+', '').replace('K', '').replace(',', ''));
+            if (isNaN(target)) return;
 
             let current = 0;
             const increment = target / speed;

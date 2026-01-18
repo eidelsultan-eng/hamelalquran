@@ -222,8 +222,10 @@
         <div class="admin-tabs" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
             <button onclick="switchTab('registrations')" id="tabRegs" class="btn btn-primary">طلبات التسجيل</button>
             <button onclick="switchTab('messages')" id="tabMsgs" class="btn btn-secondary">رسائل التواصل</button>
-            <button onclick="switchTab('nominations')" id="tabNomins" class="btn btn-secondary">الأم / المعلم
-                المثالي</button>
+            <button onclick="switchTab('motherAward')" id="tabMother" class="btn btn-secondary">الأم المثالية</button>
+            <button onclick="switchTab('maleTeacher')" id="tabMale" class="btn btn-secondary">المعلم المثالي</button>
+            <button onclick="switchTab('femaleTeacher')" id="tabFemale" class="btn btn-secondary">المعلمة
+                المثالية</button>
         </div>
 
         <div id="registrationsSection">
@@ -274,7 +276,6 @@
                         <tr>
                             <th>المرشِّح</th>
                             <th>رقم الهاتف</th>
-                            <th>الجائزة</th>
                             <th>المرشَّح له</th>
                             <th>السبب</th>
                             <th>التاريخ</th>
@@ -331,7 +332,9 @@
 
             document.getElementById('tabRegs').className = 'btn btn-secondary';
             document.getElementById('tabMsgs').className = 'btn btn-secondary';
-            document.getElementById('tabNomins').className = 'btn btn-secondary';
+            document.getElementById('tabMother').className = 'btn btn-secondary';
+            document.getElementById('tabMale').className = 'btn btn-secondary';
+            document.getElementById('tabFemale').className = 'btn btn-secondary';
 
             if (tab === 'registrations') {
                 document.getElementById('registrationsSection').style.display = 'block';
@@ -340,10 +343,18 @@
                 document.getElementById('messagesSection').style.display = 'block';
                 document.getElementById('tabMsgs').className = 'btn btn-primary';
                 loadMessages();
-            } else if (tab === 'nominations') {
+            } else if (tab === 'motherAward') {
                 document.getElementById('nominationsSection').style.display = 'block';
-                document.getElementById('tabNomins').className = 'btn btn-primary';
-                loadNominations();
+                document.getElementById('tabMother').className = 'btn btn-primary';
+                loadNominations('الأم المثالية');
+            } else if (tab === 'maleTeacher') {
+                document.getElementById('nominationsSection').style.display = 'block';
+                document.getElementById('tabMale').className = 'btn btn-primary';
+                loadNominations('المعلم المثالي');
+            } else if (tab === 'femaleTeacher') {
+                document.getElementById('nominationsSection').style.display = 'block';
+                document.getElementById('tabFemale').className = 'btn btn-primary';
+                loadNominations('المعلمة المثالية');
             }
         }
 
@@ -475,37 +486,43 @@
             }
         }
 
-        async function loadNominations() {
+        let currentNominationUnsubscribe = null;
+
+        async function loadNominations(type) {
+            if (currentNominationUnsubscribe) currentNominationUnsubscribe();
+
             const list = document.getElementById('nominationsList');
             list.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل الترشيحات...</td></tr>';
 
             try {
-                db.collection('nominations').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
-                    list.innerHTML = '';
-                    if (snapshot.empty) {
-                        list.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد ترشيحات حالياً</td></tr>';
-                        return;
-                    }
+                currentNominationUnsubscribe = db.collection('nominations')
+                    .where('awardType', '==', type)
+                    .orderBy('timestamp', 'desc')
+                    .onSnapshot((snapshot) => {
+                        list.innerHTML = '';
+                        if (snapshot.empty) {
+                            list.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد ترشيحات حالياً لهذا القسم</td></tr>';
+                            return;
+                        }
 
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const date = data.timestamp ? data.timestamp.toDate().toLocaleString('ar-EG') : 'قيد المعالجة';
-                        const row = `
-                            <tr>
-                                <td>${data.nominatorName || 'فاعل خير'}</td>
-                                <td>${data.nominatorPhone || '-'}</td>
-                                <td>${data.awardType}</td>
-                                <td>${data.nomineeName}</td>
-                                <td style="max-width:300px;">${data.reason}</td>
-                                <td>${date}</td>
-                                <td>
-                                    <button onclick="deleteNomination('${doc.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
-                                </td>
-                            </tr>
-                        `;
-                        list.innerHTML += row;
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            const date = data.timestamp ? data.timestamp.toDate().toLocaleString('ar-EG') : 'قيد المعالجة';
+                            const row = `
+                                <tr>
+                                    <td>${data.nominatorName || 'فاعل خير'}</td>
+                                    <td>${data.nominatorPhone || '-'}</td>
+                                    <td>${data.nomineeName}</td>
+                                    <td style="max-width:300px;">${data.reason}</td>
+                                    <td>${date}</td>
+                                    <td>
+                                        <button onclick="deleteNomination('${doc.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                    </td>
+                                </tr>
+                            `;
+                            list.innerHTML += row;
+                        });
                     });
-                });
             } catch (error) {
                 console.error("Error loading nominations: ", error);
             }

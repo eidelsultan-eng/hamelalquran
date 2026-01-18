@@ -117,7 +117,20 @@
 
 <body>
 
-    <button class="no-print" onclick="window.print()">اضغط هنا للطباعة</button>
+    <div class="no-print controls"
+        style="position: fixed; top: 20px; left: 20px; display: flex; gap: 10px; z-index: 1000;">
+        <select id="levelFilter"
+            style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Cairo', sans-serif; cursor: pointer;">
+            <option value="all">كل المستويات</option>
+            <option value="المستوى الأول (القرآن كاملاً)">المستوى الأول (القرآن كاملاً)</option>
+            <option value="المستوى الثاني (نصف القرآن)">المستوى الثاني (نصف القرآن)</option>
+            <option value="المستوى الثالث (ربع القرآن)">المستوى الثالث (ربع القرآن)</option>
+            <option value="المستوى الرابع (ثلاثة أجزاء)">المستوى الرابع (ثلاثة أجزاء)</option>
+        </select>
+        <button class="no-print-btn" onclick="window.print()"
+            style="padding: 10px 20px; background: #d4af37; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);">اضغط
+            هنا للطباعة</button>
+    </div>
 
     <div class="header">
         <h1>مسابقة حامل القرآن الكريم بمسير</h1>
@@ -130,22 +143,10 @@
         <span id="printDate">التاريخ: </span>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 5%">م</th>
-                <th style="width: 30%">اسم المتسابق</th>
-                <th style="width: 25%">المستوى</th>
-                <th style="width: 20%">رقم الهاتف</th>
-                <th style="width: 20%">الشيخ المحفظ</th>
-            </tr>
-        </thead>
-        <tbody id="printBody">
-            <tr>
-                <td colspan="5">جاري جلب البيانات من السحابة...</td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="printContent">
+        <!-- Tables will be generated here -->
+        <div id="initialLoading" style="text-align: center; padding: 40px;">جاري جلب البيانات من السحابة...</div>
+    </div>
 
     <div class="footer">
         <div>توقيع مسؤول التنظيم</div>
@@ -172,88 +173,103 @@
 
         document.getElementById('printDate').innerText += new Date().toLocaleDateString('ar-EG');
 
+        let allData = [];
+
         async function fetchForPrint() {
-            const container = document.body;
-            const body = document.getElementById('printBody');
+            const printContent = document.getElementById('printContent');
+            const selectedLevel = document.getElementById('levelFilter').value;
 
             try {
-                const snapshot = await db.collection('registrations').orderBy('timestamp', 'asc').get();
-                if (snapshot.empty) {
-                    body.innerHTML = '<tr><td colspan="5">لا توجد بيانات حالياً</td></tr>';
-                    return;
+                if (allData.length === 0) {
+                    const snapshot = await db.collection('registrations').orderBy('timestamp', 'asc').get();
+                    if (snapshot.empty) {
+                        printContent.innerHTML = '<div style="text-align:center; padding: 20px;">لا توجد بيانات حالياً</div>';
+                        return;
+                    }
+                    snapshot.forEach(doc => allData.push(doc.data()));
                 }
 
-                // Group the data
-                let grouped = {
-                    'المستوى الأول (القرآن كاملاً)': [],
-                    'المستوى الثاني (نصف القرآن)': [],
-                    'المستوى الثالث (ربع القرآن)': [],
-                    'المستوى الرابع (ثلاثة أجزاء)': []
-                };
+                renderTables(selectedLevel);
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (grouped[data.level]) {
-                        grouped[data.level].push(data);
-                    } else {
-                        if (!grouped['أخرى']) grouped['أخرى'] = [];
-                        grouped['أخرى'].push(data);
-                    }
-                });
-
-                // Clear existing table and replace with grouped tables
-                const tableTemplate = document.querySelector('table');
-                tableTemplate.remove();
-
-                for (const level in grouped) {
-                    if (grouped[level].length > 0) {
-                        const levelHeader = document.createElement('h2');
-                        levelHeader.style.textAlign = 'center';
-                        levelHeader.style.margin = '30px 0 10px';
-                        levelHeader.style.padding = '10px';
-                        levelHeader.style.background = '#f2f2f2';
-                        levelHeader.style.border = '2px solid #000';
-                        levelHeader.innerText = level;
-                        container.insertBefore(levelHeader, document.querySelector('.footer'));
-
-                        const table = document.createElement('table');
-                        table.innerHTML = `
-                            <thead>
-                                <tr>
-                                    <th style="width: 5%">م</th>
-                                    <th style="width: 35%">اسم المتسابق</th>
-                                    <th style="width: 25%">المستوى</th>
-                                    <th style="width: 20%">رقم الهاتف</th>
-                                    <th style="width: 15%">الدرجة</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        `;
-                        const tbody = table.querySelector('tbody');
-                        let counter = 1;
-
-                        grouped[level].forEach(data => {
-                            const row = `
-                                <tr>
-                                    <td>${counter++}</td>
-                                    <td style="text-align: right;">${data.studentName}</td>
-                                    <td>${data.level}</td>
-                                    <td>${data.phone1}</td>
-                                    <td></td>
-                                </tr>
-                            `;
-                            tbody.innerHTML += row;
-                        });
-                        container.insertBefore(table, document.querySelector('.footer'));
-                    }
-                }
-
-                document.getElementById('regCount').innerText = `إجمالي المسجلين: ${snapshot.size}`;
             } catch (error) {
                 console.error(error);
-                body.innerHTML = '<tr><td colspan="5">حدث خطأ أثناء جلب البيانات</td></tr>';
+                printContent.innerHTML = '<div style="text-align:center; padding: 20px; color: red;">حدث خطأ أثناء جلب البيانات</div>';
             }
         }
+
+        function renderTables(filter) {
+            const printContent = document.getElementById('printContent');
+            printContent.innerHTML = '';
+
+            let filteredData = allData;
+            if (filter !== 'all') {
+                filteredData = allData.filter(d => d.level === filter);
+            }
+
+            if (filteredData.length === 0) {
+                printContent.innerHTML = '<div style="text-align:center; padding: 20px;">لا توجد بيانات لهذا المستوى</div>';
+                document.getElementById('regCount').innerText = `إجمالي المعروض: 0`;
+                return;
+            }
+
+            // Group the data
+            let grouped = {};
+            filteredData.forEach(data => {
+                if (!grouped[data.level]) grouped[data.level] = [];
+                grouped[data.level].push(data);
+            });
+
+            for (const level in grouped) {
+                const levelHeader = document.createElement('h2');
+                levelHeader.style.textAlign = 'center';
+                levelHeader.style.margin = '30px 0 10px';
+                levelHeader.style.padding = '10px';
+                levelHeader.style.background = '#f2f2f2';
+                levelHeader.style.border = '2px solid #000';
+                levelHeader.innerText = level;
+                printContent.appendChild(levelHeader);
+
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">م</th>
+                            <th style="width: 25%">اسم المتسابق</th>
+                            <th style="width: 20%">المستوى</th>
+                            <th style="width: 15%">رقم الهاتف</th>
+                            <th style="width: 12.5%">الشروط</th>
+                            <th style="width: 12.5%">الحضور</th>
+                            <th style="width: 10%">الدرجة</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                const tbody = table.querySelector('tbody');
+                let counter = 1;
+
+                grouped[level].forEach(data => {
+                    const row = `
+                        <tr>
+                            <td>${counter++}</td>
+                            <td style="text-align: right;">${data.studentName}</td>
+                            <td>${data.level}</td>
+                            <td>${data.phone1}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                printContent.appendChild(table);
+            }
+
+            document.getElementById('regCount').innerText = `إجمالي المعروض: ${filteredData.length}`;
+        }
+
+        document.getElementById('levelFilter').addEventListener('change', (e) => {
+            renderTables(e.target.value);
+        });
 
         fetchForPrint();
     </script>
