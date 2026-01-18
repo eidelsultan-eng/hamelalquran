@@ -525,18 +525,28 @@
 
         async function loadMessages() {
             const list = document.getElementById('messagesList');
-            list.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري تحميل الرسائل...</td></tr>';
+            list.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري تحميل الرسائل...</td></tr>';
 
             try {
-                db.collection('messages').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+                // Removing .orderBy to avoid index requirement for new users
+                db.collection('messages').onSnapshot((snapshot) => {
                     list.innerHTML = '';
                     if (snapshot.empty) {
-                        list.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد رسائل حالياً</td></tr>';
+                        list.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد رسائل حالياً</td></tr>';
                         return;
                     }
 
+                    let messages = [];
                     snapshot.forEach(doc => {
                         const data = doc.data();
+                        data.id = doc.id;
+                        messages.push(data);
+                    });
+
+                    // Sort locally if timestamp exists
+                    messages.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+                    messages.forEach(data => {
                         const date = data.timestamp ? data.timestamp.toDate().toLocaleString('ar-EG') : 'قيد المعالجة';
                         const row = `
                             <tr>
@@ -545,12 +555,15 @@
                                 <td style="max-width:300px;">${data.message}</td>
                                 <td>${date}</td>
                                 <td>
-                                    <button onclick="deleteMessage('${doc.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                    <button onclick="deleteMessage('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
                                 </td>
                             </tr>
                         `;
                         list.innerHTML += row;
                     });
+                }, (error) => {
+                    console.error("Firestore Error:", error);
+                    list.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">حدث خطأ في جلب الرسائل.</td></tr>';
                 });
             } catch (error) {
                 console.error("Error loading messages: ", error);
@@ -567,37 +580,36 @@
             }
         }
 
-        async function deleteRegistration(id) {
-            if (confirm('هل أنت متأكد من حذف هذا التسجيل؟')) {
-                try {
-                    await db.collection('registrations').doc(id).delete();
-                } catch (error) {
-                    alert('خطأ أثناء الحذف');
-                }
-            }
-        }
-
         let currentNominationUnsubscribe = null;
 
         async function loadNominations(type) {
             if (currentNominationUnsubscribe) currentNominationUnsubscribe();
 
             const list = document.getElementById('nominationsList');
-            list.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل الترشيحات...</td></tr>';
+            list.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري تحميل الترشيحات...</td></tr>';
 
             try {
+                // Query by awardType, but sort locally to avoid index requirement
                 currentNominationUnsubscribe = db.collection('nominations')
                     .where('awardType', '==', type)
-                    .orderBy('timestamp', 'desc')
                     .onSnapshot((snapshot) => {
                         list.innerHTML = '';
                         if (snapshot.empty) {
-                            list.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد ترشيحات حالياً لهذا القسم</td></tr>';
+                            list.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد ترشيحات حالياً لهذا القسم</td></tr>';
                             return;
                         }
 
+                        let noms = [];
                         snapshot.forEach(doc => {
                             const data = doc.data();
+                            data.id = doc.id;
+                            noms.push(data);
+                        });
+
+                        // Sort locally
+                        noms.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+                        noms.forEach(data => {
                             const date = data.timestamp ? data.timestamp.toDate().toLocaleString('ar-EG') : 'قيد المعالجة';
                             const row = `
                                 <tr>
@@ -607,12 +619,15 @@
                                     <td style="max-width:300px;">${data.reason}</td>
                                     <td>${date}</td>
                                     <td>
-                                        <button onclick="deleteNomination('${doc.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                        <button onclick="deleteNomination('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
                                     </td>
                                 </tr>
                             `;
                             list.innerHTML += row;
                         });
+                    }, (error) => {
+                        console.error("Firestore Error:", error);
+                        list.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">خطأ: تأكد من وصول الإنترنت أو إعدادات قاعدة البيانات.</td></tr>';
                     });
             } catch (error) {
                 console.error("Error loading nominations: ", error);
@@ -623,6 +638,16 @@
             if (confirm('هل أنت متأكد من حذف هذا الترشيح؟')) {
                 try {
                     await db.collection('nominations').doc(id).delete();
+                } catch (error) {
+                    alert('خطأ أثناء الحذف');
+                }
+            }
+        }
+
+        async function deleteRegistration(id) {
+            if (confirm('⚠️ تنبيه: هل أنت متأكد من حذف هذا المتسابق نهائياً؟')) {
+                try {
+                    await db.collection('registrations').doc(id).delete();
                 } catch (error) {
                     alert('خطأ أثناء الحذف');
                 }
