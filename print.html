@@ -177,7 +177,7 @@
             const body = document.getElementById('printBody');
 
             try {
-                const snapshot = await db.collection('registrations').orderBy('submissionDate', 'asc').get();
+                const snapshot = await db.collection('registrations').orderBy('timestamp', 'asc').get();
                 if (snapshot.empty) {
                     body.innerHTML = '<tr><td colspan="5">لا توجد بيانات حالياً</td></tr>';
                     return;

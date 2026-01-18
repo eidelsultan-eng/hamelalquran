@@ -352,7 +352,7 @@
             list.innerHTML = '<tr><td colspan="7" style="text-align:center;">جاري تحميل البيانات...</td></tr>';
 
             try {
-                db.collection('registrations').orderBy('submissionDate', 'desc').onSnapshot((snapshot) => {
+                db.collection('registrations').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
                     list.innerHTML = '';
                     let stats = { total: 0, l1: 0, l2: 0, l3: 0, l4: 0 };
                     let grouped = {
@@ -379,10 +379,12 @@
                         }
 
                         stats.total++;
-                        if (data.level && data.level.includes('الأول')) stats.l1++;
-                        if (data.level && data.level.includes('الثاني')) stats.l2++;
-                        if (data.level && data.level.includes('الثالث')) stats.l3++;
-                        if (data.level && data.level.includes('الرابع')) stats.l4++;
+                        if (data.level) {
+                            if (data.level.includes('الأول')) stats.l1++;
+                            if (data.level.includes('الثاني')) stats.l2++;
+                            if (data.level.includes('الثالث')) stats.l3++;
+                            if (data.level.includes('الرابع')) stats.l4++;
+                        }
                     });
 
                     for (const level in grouped) {

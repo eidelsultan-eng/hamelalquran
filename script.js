@@ -67,9 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const name = contactForm.querySelector('input[placeholder="الاسم"]').value;
-            const phone = contactForm.querySelector('input[placeholder="رقم الهاتف"]').value;
-            const message = contactForm.querySelector('textarea').value;
+            const name = document.getElementById('contactName').value.trim();
+            const phone = document.getElementById('contactPhone').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
 
             // Feedback: Change button text
             const submitBtn = contactForm.querySelector('button');
