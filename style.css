@@ -127,21 +127,18 @@ h3 {
 .hero {
     height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
-    text-align: center;
     position: relative;
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('WhatsApp Image 2026-01-06 at 4.18.11 PM.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    background: #000 url('hero_mobile.jpg') no-repeat center center;
+    background-size: contain;
+    /* Show the full flyer */
     overflow: hidden;
+    padding-bottom: 5vh;
 }
 
 .hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, transparent 0%, var(--bg-deep) 100%);
+    display: none;
 }
 
 .hero-content {
@@ -260,9 +257,37 @@ h3 {
 }
 
 .hero-btns {
+    width: 90%;
+    max-width: 450px;
     display: flex;
-    gap: 25px;
-    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    z-index: 100;
+}
+
+.hero-btns .btn {
+    width: 100% !important;
+    height: 60px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: transparent !important;
+    cursor: pointer;
+    border-radius: 50px;
+}
+
+.hero-btns .btn:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.hero-badge,
+.hero-title,
+.hero-subtitle-new,
+.sponsors-info,
+.hero-description,
+.hero-content::before {
+    display: none !important;
 }
 
 .btn {
