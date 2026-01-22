@@ -7,39 +7,66 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Navbar Scroll Effect
-    const navbar = document.querySelector('.navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
+    // --- Countdown Timer Logic ---
+    const countdownTarget = new Date("Feb 6, 2026 00:00:00").getTime();
+
+    const updateCountdown = () => {
+        const now = new Date().getTime();
+        const distance = countdownTarget - now;
+
+        if (distance < 0) {
+            const countdownEl = document.getElementById("countdown");
+            if (countdownEl) countdownEl.style.display = "none";
+            return;
         }
-    });
 
-    // Mobile Menu Toggle
-    const navToggle = document.getElementById('navToggle');
-    const navLinks = document.querySelector('.nav-links');
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    if (navToggle) {
-        navToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            navToggle.classList.toggle('open');
+        const daysEl = document.getElementById("days");
+        const hoursEl = document.getElementById("hours");
+        const minsEl = document.getElementById("minutes");
+        const secsEl = document.getElementById("seconds");
 
-            if (navLinks.classList.contains('active')) {
-                navLinks.style.display = 'flex';
-                navLinks.style.flexDirection = 'column';
-                navLinks.style.position = 'absolute';
-                navLinks.style.top = '100%';
-                navLinks.style.left = '0';
-                navLinks.style.width = '100%';
-                navLinks.style.background = 'rgba(10, 10, 10, 0.98)';
-                navLinks.style.padding = '30px';
-                navLinks.style.textAlign = 'center';
-            } else {
-                navLinks.style.display = '';
+        if (daysEl) daysEl.innerText = days.toString().padStart(2, '0');
+        if (hoursEl) hoursEl.innerText = hours.toString().padStart(2, '0');
+        if (minsEl) minsEl.innerText = minutes.toString().padStart(2, '0');
+        if (secsEl) secsEl.innerText = seconds.toString().padStart(2, '0');
+    };
+
+    if (document.getElementById("countdown")) {
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    }
+
+    // --- Navigation & Scroll logic cleaned up ---
+    // Hero buttons scroll logic
+    const heroApplyBtn = document.querySelector('.hero-btns .btn-primary');
+    const heroDiscoverBtn = document.querySelector('.hero-btns .btn-secondary');
+
+    if (heroApplyBtn) {
+        heroApplyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const applySection = document.getElementById('apply');
+            if (applySection) {
+                applySection.scrollIntoView({ behavior: 'smooth' });
             }
         });
     }
+
+    if (heroDiscoverBtn) {
+        heroDiscoverBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const aboutSection = document.getElementById('about');
+            if (aboutSection) {
+                aboutSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+
+    // Smooth Scrolling for all internal links
 
     // Smooth Scrolling
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -48,11 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const href = this.getAttribute('href');
             if (href === '#') return;
 
-            navLinks.classList.remove('active');
-
             const target = document.querySelector(href);
             if (target) {
-                const offsetTop = target.getBoundingClientRect().top + window.pageYOffset - 80;
+                const offsetTop = target.getBoundingClientRect().top + window.pageYOffset; // Removed -80 offset
                 window.scrollTo({
                     top: offsetTop,
                     behavior: 'smooth'
@@ -203,29 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // File selection preview
-        const fileInputs = registrationForm.querySelectorAll('input[type="file"]');
-        fileInputs.forEach(input => {
-            input.addEventListener('change', (e) => {
-                const wrapper = input.parentElement;
-                const fileName = e.target.files[0]?.name;
-
-                if (fileName) {
-                    wrapper.classList.add('has-file');
-                    let preview = wrapper.querySelector('.file-name-preview');
-                    if (!preview) {
-                        preview = document.createElement('div');
-                        preview.className = 'file-name-preview';
-                        wrapper.appendChild(preview);
-                    }
-                    preview.textContent = fileName;
-                } else {
-                    wrapper.classList.remove('has-file');
-                    const preview = wrapper.querySelector('.file-name-preview');
-                    if (preview) preview.remove();
-                }
-            });
-        });
 
         registrationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -239,36 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (submitBtn) {
                 submitBtn.disabled = true;
                 if (loader) loader.style.display = 'inline-block';
-                if (btnText) btnText.textContent = 'جاري رفع الملفات والبيانات...';
+                if (btnText) btnText.textContent = 'جاري حفظ البيانات...';
             }
 
             try {
-                // 1. Upload files to Firebase Storage
-                let uploadedUrls = {
-                    birthCertificate: null,
-                    personalPhoto: null,
-                    paymentReceipt: null
-                };
-
-                if (isFirebaseConfigured && firebase.storage) {
-                    const storage = firebase.storage();
-                    const uploadFile = async (file, folder) => {
-                        if (!file) return null;
-                        if (btnText) btnText.textContent = `جاري رفع ${folder === 'birth' ? 'شهادة الميلاد' : folder === 'photo' ? 'الصورة' : 'الإيصال'}...`;
-                        const fileName = `${Date.now()}_${file.name}`;
-                        const storageRef = storage.ref(`registrations/${fileName}`);
-                        await storageRef.put(file);
-                        return await storageRef.getDownloadURL();
-                    };
-
-                    const birthCertFile = document.getElementById('birthCertificate').files[0];
-                    const photoFile = document.getElementById('personalPhoto').files[0];
-                    const receiptFile = document.getElementById('paymentReceipt').files[0];
-
-                    if (birthCertFile) uploadedUrls.birthCertificate = await uploadFile(birthCertFile, 'birth');
-                    if (photoFile) uploadedUrls.personalPhoto = await uploadFile(photoFile, 'photo');
-                    if (receiptFile) uploadedUrls.paymentReceipt = await uploadFile(receiptFile, 'receipt');
-                }
 
                 // 2. Prepare Data for Firestore
                 const formData = new FormData(registrationForm);
@@ -277,14 +253,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     gender: formData.get('gender'),
                     phone1: formData.get('phone1'),
                     phone2: formData.get('phone2'),
+                    phone3: formData.get('phone3'),
                     address: formData.get('address'),
                     sheikhName: formData.get('sheikhName'),
                     sheikhPhone: formData.get('sheikhPhone'),
                     level: formData.get('level'),
-                    // Save full URLs from Firebase Storage
-                    birthCertificateUrl: uploadedUrls.birthCertificate,
-                    personalPhotoUrl: uploadedUrls.personalPhoto,
-                    paymentReceiptUrl: uploadedUrls.paymentReceipt,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
@@ -304,48 +277,49 @@ document.addEventListener('DOMContentLoaded', () => {
                         const ranges = {
                             'بنين': {
                                 'المستوى الأول (القرآن كاملاً)': 4000,
-                                'المستوى الثاني (نصف القرآن)': 4301,
-                                'المستوى الثالث (ربع القرآن)': 4801,
-                                'المستوى الرابع (ثلاثة أجزاء)': 5501
+                                'المستوى الثاني (ثلاثة أرباع القرآن)': 4301,
+                                'المستوى الثالث (نصف القرآن)': 4801,
+                                'المستوى الرابع (ربع القرآن)': 5501,
+                                'المستوى الخامس (البراعم - 5 أجزاء)': 1
                             },
                             'بنات': {
                                 'المستوى الأول (القرآن كاملاً)': 2000,
-                                'المستوى الثاني (نصف القرآن)': 2301,
-                                'المستوى الثالث (ربع القرآن)': 2801,
-                                'المستوى الرابع (ثلاثة أجزاء)': 3501
+                                'المستوى الثاني (ثلاثة أرباع القرآن)': 2301,
+                                'المستوى الثالث (نصف القرآن)': 2801,
+                                'المستوى الرابع (ربع القرآن)': 3501,
+                                'المستوى الخامس (البراعم - 5 أجزاء)': 1001
                             }
                         };
 
                         const start = ranges[registrationData.gender][registrationData.level];
                         const assignedSeat = start + count;
 
+                        // 2. Calculate Committee Number (15 students per committee)
+                        const committeeNumber = Math.ceil((count + 1) / 15);
+
                         // Update counter for next student
                         transaction.set(counterRef, { count: count + 1 });
 
-                        // Add the registration document with seat number
+                        // Add the registration document with seat number and committee
                         const newRegRef = db.collection('registrations').doc();
                         registrationData.seatNumber = assignedSeat;
+                        registrationData.committee = committeeNumber;
                         transaction.set(newRegRef, registrationData);
 
-                        return assignedSeat;
+                        return { assignedSeat, committeeNumber };
                     });
 
                     // Success UI update
                     document.getElementById('displayStudentName').textContent = studentName;
-                    document.getElementById('displaySeatNumber').textContent = seatNumber;
+                    document.getElementById('displaySeatNumber').textContent = seatNumber.assignedSeat;
+                    const committeeDisplay = document.getElementById('displayCommittee');
+                    if (committeeDisplay) committeeDisplay.textContent = seatNumber.committeeNumber;
                     document.getElementById('seatNumberModal').style.display = 'flex';
                 }
 
                 localStorage.setItem(`registered_${studentName}`, 'true');
                 registrationForm.reset();
                 if (agreeTerms) agreeTerms.checked = false;
-
-                // Clear file previews
-                registrationForm.querySelectorAll('.file-input-wrapper').forEach(w => {
-                    w.classList.remove('has-file');
-                    const p = w.querySelector('.file-name-preview');
-                    if (p) p.remove();
-                });
 
             } catch (error) {
                 console.error("Submission Error:", error);

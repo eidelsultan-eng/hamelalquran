@@ -295,6 +295,11 @@
                 <h3>المستوى الرابع</h3>
                 <p id="level4Count">0</p>
             </div>
+            <div class="stat-card">
+                <i class="fas fa-baby"></i>
+                <h3>المستوى الخامس</h3>
+                <p id="level5Count">0</p>
+            </div>
         </div>
 
         <div class="admin-tabs" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
@@ -317,12 +322,14 @@
                         style="padding: 5px 15px; font-size: 0.9rem;">الكل</button>
                     <button onclick="setLevelFilter('المستوى الأول (القرآن كاملاً)')" id="btnL1"
                         class="btn btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">الأول</button>
-                    <button onclick="setLevelFilter('المستوى الثاني (نصف القرآن)')" id="btnL2" class="btn btn-secondary"
-                        style="padding: 5px 15px; font-size: 0.9rem;">الثاني</button>
-                    <button onclick="setLevelFilter('المستوى الثالث (ربع القرآن)')" id="btnL3" class="btn btn-secondary"
+                    <button onclick="setLevelFilter('المستوى الثاني (ثلاثة أرباع القرآن)')" id="btnL2"
+                        class="btn btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">الثاني</button>
+                    <button onclick="setLevelFilter('المستوى الثالث (نصف القرآن)')" id="btnL3" class="btn btn-secondary"
                         style="padding: 5px 15px; font-size: 0.9rem;">الثالث</button>
-                    <button onclick="setLevelFilter('المستوى الرابع (ثلاثة أجزاء)')" id="btnL4"
-                        class="btn btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">الرابع</button>
+                    <button onclick="setLevelFilter('المستوى الرابع (ربع القرآن)')" id="btnL4" class="btn btn-secondary"
+                        style="padding: 5px 15px; font-size: 0.9rem;">الرابع</button>
+                    <button onclick="setLevelFilter('المستوى الخامس (البراعم - 5 أجزاء)')" id="btnL5"
+                        class="btn btn-secondary" style="padding: 5px 15px; font-size: 0.9rem;">الخامس</button>
                 </div>
                 <div
                     style="display: flex; gap: 10px; flex-wrap: wrap; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;">
@@ -335,6 +342,13 @@
                     <button onclick="setGenderFilter('بنات')" id="btnGGirl" class="btn btn-secondary"
                         style="padding: 5px 15px; font-size: 0.9rem;">بنات</button>
                 </div>
+                <!-- Search Bar -->
+                <div style="position: relative; width: 100%; max-width: 400px; margin-top: 10px;">
+                    <i class="fas fa-search"
+                        style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #d4af37;"></i>
+                    <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="ابحث باسم المتسابق..."
+                        style="width: 100%; padding: 12px 45px 12px 15px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); color: #fff; font-family: 'Cairo', sans-serif;">
+                </div>
             </div>
 
             <div style="overflow-x: auto;">
@@ -343,11 +357,11 @@
                         <tr>
                             <th>الاسم</th>
                             <th>رقم الجلوس</th>
+                            <th>اللجنة</th>
                             <th>النوع</th>
                             <th>المستوى</th>
-                            <th>الأوراق المرفوعة</th>
-                            <th>رقم الواتساب</th>
-                            <th>الشيخ المحفظ</th>
+                            <th>العنوان</th>
+                            <th>أرقام الهاتف</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
@@ -364,6 +378,22 @@
             <a id="downloadLink" href="#" download class="download-btn">
                 <i class="fas fa-download"></i> تحميل الصورة
             </a>
+        </div>
+
+        <!-- Details Modal -->
+        <div id="detailsModal" class="img-preview-modal" style="display: none;">
+            <div class="login-card"
+                style="max-width: 600px; text-align: right; position: relative; background: #111; border: 2px solid #d4af37; padding: 30px;">
+                <span onclick="closeDetailsModal()"
+                    style="position: absolute; top: 15px; left: 15px; cursor: pointer; color: #d4af37; font-size: 1.5rem;">&times;</span>
+                <h2
+                    style="margin-bottom: 25px; border-bottom: 1px solid #d4af37; padding-bottom: 10px; color: #d4af37; font-size: 1.5rem;">
+                    <i class="fas fa-info-circle"></i> تفاصيل المتسابق</h2>
+                <div id="studentDetailsContent"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.95rem; color: #fff;">
+                    <!-- Details will be injected here -->
+                </div>
+            </div>
         </div>
 
         <div id="messagesSection" style="display:none;">
@@ -493,11 +523,11 @@
 
         function updateFilterButtons(prefix, val) {
             const btns = prefix === 'L' ?
-                ['all', 'المستوى الأول (القرآن كاملاً)', 'المستوى الثاني (نصف القرآن)', 'المستوى الثالث (ربع القرآن)', 'المستوى الرابع (ثلاثة أجزاء)'] :
+                ['all', 'المستوى الأول (القرآن كاملاً)', 'المستوى الثاني (ثلاثة أرباع القرآن)', 'المستوى الثالث (نصف القرآن)', 'المستوى الرابع (ربع القرآن)', 'المستوى الخامس (البراعم - 5 أجزاء)'] :
                 ['all', 'بنين', 'بنات'];
 
             const btnIds = prefix === 'L' ?
-                ['btnLAll', 'btnL1', 'btnL2', 'btnL3', 'btnL4'] :
+                ['btnLAll', 'btnL1', 'btnL2', 'btnL3', 'btnL4', 'btnL5'] :
                 ['btnGAll', 'btnGBoy', 'btnGGirl'];
 
             btnIds.forEach((id, idx) => {
@@ -514,7 +544,7 @@
             try {
                 db.collection('registrations').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
                     allRegistrations = [];
-                    let stats = { total: 0, l1: 0, l2: 0, l3: 0, l4: 0 };
+                    let stats = { total: 0, l1: 0, l2: 0, l3: 0, l4: 0, l5: 0 };
 
                     snapshot.forEach(doc => {
                         const data = doc.data();
@@ -527,6 +557,7 @@
                             if (data.level.includes('الثاني')) stats.l2++;
                             if (data.level.includes('الثالث')) stats.l3++;
                             if (data.level.includes('الرابع')) stats.l4++;
+                            if (data.level.includes('الخامس')) stats.l5++;
                         }
                     });
 
@@ -535,6 +566,7 @@
                     document.getElementById('level2Count').textContent = stats.l2;
                     document.getElementById('level3Count').textContent = stats.l3;
                     document.getElementById('level4Count').textContent = stats.l4;
+                    document.getElementById('level5Count').textContent = stats.l5;
 
                     renderRegistrations();
                 });
@@ -576,11 +608,12 @@
             let filtered = allRegistrations.filter(reg => {
                 const levelMatch = (currentLevelFilter === 'all' || reg.level === currentLevelFilter);
                 const genderMatch = (currentGenderFilter === 'all' || reg.gender === currentGenderFilter);
-                return levelMatch && genderMatch;
+                const nameMatch = searchQuery === '' || (reg.studentName && reg.studentName.includes(searchQuery));
+                return levelMatch && genderMatch && nameMatch;
             });
 
             if (filtered.length === 0) {
-                list.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد بيانات تطابق الاختيار</td></tr>';
+                list.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا توجد بيانات تطابق الاختيار</td></tr>';
                 return;
             }
 
@@ -595,24 +628,26 @@
 
                 grouped[level].forEach(data => {
                     const docsHtml = `
-                        <div style="display:flex; gap:5px;">
-                            ${data.birthCertificateUrl ? `<button onclick="showImgPreview('${data.birthCertificateUrl}')" class="btn-view btn-img" title="شهادة الميلاد"><i class="fas fa-file-invoice"></i></button>` : ''}
-                            ${data.personalPhotoUrl ? `<button onclick="showImgPreview('${data.personalPhotoUrl}')" class="btn-view btn-img" title="الصورة الشخصية"><i class="fas fa-user"></i></button>` : ''}
-                            ${data.paymentReceiptUrl ? `<button onclick="showImgPreview('${data.paymentReceiptUrl}')" class="btn-view btn-img" title="إيصال الدفع" style="background:#28a745; color:white;"><i class="fas fa-receipt"></i></button>` : ''}
-                            ${(!data.birthCertificateUrl && !data.personalPhotoUrl && !data.paymentReceiptUrl) ? '<span style="color:#666; font-size:0.8rem;">لا يوجد</span>' : ''}
+                        <div style="display:flex; gap:5px; color: #666; font-size: 0.8rem;">
+                            لا يوجد ملفات
                         </div>
                     `;
 
                     const row = `
-                        <tr>
+                        <tr style="cursor: pointer;" onclick="showStudentDetails('${data.id}')">
                             <td style="font-weight:bold;">${data.studentName}</td>
                             <td><span style="background: rgba(212, 175, 55, 0.1); color: #d4af37; padding: 5px 12px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(212, 175, 55, 0.3); font-size: 1.1rem;">${data.seatNumber || '-'}</span></td>
+                            <td style="font-weight: bold; color: #fff;">${data.committee || '-'}</td>
                             <td><span class="badge ${data.gender === 'بنين' ? 'badge-blue' : 'badge-pink'}">${data.gender || '-'}</span></td>
                             <td><div style="font-size:0.8rem;">${data.level}</div></td>
-                            <td>${docsHtml}</td>
-                            <td>${data.phone1}</td>
-                            <td>${data.sheikhName}</td>
+                            <td><div style="font-size:0.8rem; max-width: 150px; white-space: normal;">${data.address || '-'}</div></td>
                             <td>
+                                <div style="font-size: 0.85rem; line-height: 1.4;">
+                                    <div title="المتسابق"><i class="fas fa-user-circle" style="font-size: 0.7rem; color: #d4af37;"></i> ${data.phone1}</div>
+                                    <div title="ولي الأمر" style="color: #aaa; border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 2px; padding-top: 2px;"><i class="fas fa-users" style="font-size: 0.7rem;"></i> ${data.phone2}</div>
+                                </div>
+                            </td>
+                            <td onclick="event.stopPropagation()">
                                 <button onclick="deleteRegistration('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
@@ -620,6 +655,60 @@
                     list.innerHTML += row;
                 });
             }
+        }
+
+        function showStudentDetails(id) {
+            const data = allRegistrations.find(r => r.id === id);
+            if (!data) return;
+
+            const content = document.getElementById('studentDetailsContent');
+            content.innerHTML = `
+                <div><strong style="color: #d4af37;">الاسم:</strong><br>${data.studentName}</div>
+                <div><strong style="color: #d4af37;">رقم الجلوس:</strong><br>${data.seatNumber || '-'}</div>
+                <div><strong style="color: #d4af37;">رقم اللجنة:</strong><br>${data.committee || '-'}</div>
+                <div><strong style="color: #d4af37;">النوع:</strong><br>${data.gender || '-'}</div>
+                <div><strong style="color: #d4af37;">المستوى:</strong><br>${data.level}</div>
+                <div><strong style="color: #d4af37;">هاتف المتسابق:</strong><br>${data.phone1}</div>
+                <div><strong style="color: #d4af37;">هاتف ولي الأمر:</strong><br>${data.phone2}</div>
+                <div><strong style="color: #d4af37;">هاتف آخر:</strong><br>${data.phone3 || '-'}</div>
+                <div><strong style="color: #d4af37;">الشيخ المحفظ:</strong><br>${data.sheikhName}</div>
+                <div><strong style="color: #d4af37;">هاتف الشيخ:</strong><br>${data.sheikhPhone}</div>
+                <div style="grid-column: span 2;"><strong style="color: #d4af37;">العنوان:</strong><br>${data.address}</div>
+                <div style="grid-column: span 2;"><strong style="color: #d4af37;">تاريخ التسجيل:</strong><br>${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString('ar-EG') : '-'}</div>
+            `;
+
+            document.getElementById('detailsModal').style.display = 'flex';
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        function showStudentDetails(id) {
+            const data = allRegistrations.find(r => r.id === id);
+            if (!data) return;
+
+            const content = document.getElementById('studentDetailsContent');
+            content.innerHTML = `
+                <div><strong style="color: #d4af37;">الاسم:</strong><br>${data.studentName}</div>
+                <div><strong style="color: #d4af37;">رقم الجلوس:</strong><br>${data.seatNumber || '-'}</div>
+                <div><strong style="color: #d4af37;">رقم اللجنة:</strong><br>${data.committee || '-'}</div>
+                <div><strong style="color: #d4af37;">النوع:</strong><br>${data.gender || '-'}</div>
+                <div><strong style="color: #d4af37;">المستوى:</strong><br>${data.level}</div>
+                <div><strong style="color: #d4af37;">هاتف المتسابق:</strong><br>${data.phone1}</div>
+                <div><strong style="color: #d4af37;">هاتف ولي الأمر:</strong><br>${data.phone2}</div>
+                <div><strong style="color: #d4af37;">هاتف آخر:</strong><br>${data.phone3 || '-'}</div>
+                <div><strong style="color: #d4af37;">الشيخ المحفظ:</strong><br>${data.sheikhName}</div>
+                <div><strong style="color: #d4af37;">هاتف الشيخ:</strong><br>${data.sheikhPhone}</div>
+                <div style="grid-column: span 2;"><strong style="color: #d4af37;">العنوان:</strong><br>${data.address}</div>
+                <div style="grid-column: span 2;"><strong style="color: #d4af37;">تاريخ التسجيل:</strong><br>${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString('ar-EG') : '-'}</div>
+            `;
+
+            document.getElementById('detailsModal').style.display = 'flex';
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').style.display = 'none';
         }
 
         async function loadMessages() {

@@ -123,9 +123,10 @@
             style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Cairo', sans-serif; cursor: pointer;">
             <option value="all">كل المستويات</option>
             <option value="المستوى الأول (القرآن كاملاً)">المستوى الأول (القرآن كاملاً)</option>
-            <option value="المستوى الثاني (نصف القرآن)">المستوى الثاني (نصف القرآن)</option>
-            <option value="المستوى الثالث (ربع القرآن)">المستوى الثالث (ربع القرآن)</option>
-            <option value="المستوى الرابع (ثلاثة أجزاء)">المستوى الرابع (ثلاثة أجزاء)</option>
+            <option value="المستوى الثاني (ثلاثة أرباع القرآن)">المستوى الثاني (ثلاثة أرباع القرآن)</option>
+            <option value="المستوى الثالث (نصف القرآن)">المستوى الثالث (نصف القرآن)</option>
+            <option value="المستوى الرابع (ربع القرآن)">المستوى الرابع (ربع القرآن)</option>
+            <option value="المستوى الخامس (البراعم - 5 أجزاء)">المستوى الخامس (البراعم - 5 أجزاء)</option>
         </select>
         <select id="genderFilter"
             style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Cairo', sans-serif; cursor: pointer;">
@@ -243,11 +244,12 @@
                         <tr>
                             <th style="width: 5%">م</th>
                             <th style="width: 10%">رقم الجلوس</th>
+                            <th style="width: 10%">اللجنة</th>
                             <th style="width: 20%">اسم المتسابق</th>
                             <th style="width: 10%">النوع</th>
-                            <th style="width: 15%">رقم الهاتف</th>
-                            <th style="width: 10%">الشروط</th>
-                            <th style="width: 10%">الحضور</th>
+                            <th style="width: 15%">أرقام الهاتف</th>
+                            <th style="width: 5%">ش</th>
+                            <th style="width: 5%">ح</th>
                             <th style="width: 10%">الدرجة</th>
                         </tr>
                     </thead>
@@ -261,9 +263,15 @@
                         <tr>
                             <td>${counter++}</td>
                             <td style="font-weight: bold; background: #fefefe;">${data.seatNumber || '-'}</td>
+                            <td style="font-weight: bold; color: #aa8c2c;">${data.committee || '-'}</td>
                             <td style="text-align: right; font-weight: bold;">${data.studentName}</td>
                             <td>${data.gender || '-'}</td>
-                            <td>${data.phone1}</td>
+                            <td>
+                                <div style="font-size: 11px; line-height: 1.2;">
+                                    <div style="font-weight: bold;">${data.phone1}</div>
+                                    <div style="color: #666; border-top: 1px solid #eee;">${data.phone2}</div>
+                                </div>
+                            </td>
                             <td></td>
                             <td></td>
                             <td></td>

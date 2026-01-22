@@ -56,72 +56,7 @@ h3 {
     padding: 0 25px;
 }
 
-/* --- Navbar --- */
-.navbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 2000;
-    padding: 25px 0;
-    background: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: var(--transition-slow);
-}
 
-.navbar.scrolled {
-    background: #ffffff;
-    padding: 15px 0;
-    backdrop-filter: blur(15px);
-    border-bottom: 2px solid var(--glass-border);
-}
-
-.border-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo-text {
-    font-size: 2rem;
-    color: var(--primary-gold);
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-    letter-spacing: 1px;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 35px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: #1a1a1a;
-    font-weight: 700;
-    font-size: 1.1rem;
-    transition: var(--transition-fast);
-    position: relative;
-    padding-bottom: 5px;
-}
-
-.nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 0;
-    height: 2px;
-    background: var(--primary-gold);
-    transition: var(--transition-fast);
-}
-
-.nav-links a:hover {
-    color: var(--primary-gold);
-}
-
-.nav-links a:hover::after {
-    width: 100%;
-}
 
 /* --- Hero Section --- */
 .hero {
@@ -132,162 +67,135 @@ h3 {
     position: relative;
     background: #000 url('hero_mobile.jpg') no-repeat center center;
     background-size: contain;
-    /* Show the full flyer */
+    /* Keep the original design clear */
     overflow: hidden;
-    padding-bottom: 5vh;
+}
+
+@media (max-width: 768px) {
+    .hero {
+        background-size: 100% 100%;
+        /* Take full width of phone correctly */
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        background-size: 100% 100%;
+        /* Fill screen dimensions on mobile as requested */
+        padding-bottom: 12vh;
+    }
 }
 
 .hero-overlay {
-    display: none;
+    display: none !important;
+    /* Completely remove any 'veil' or shadow */
 }
 
 .hero-content {
     position: relative;
     z-index: 10;
     max-width: 950px;
+    text-align: center;
 }
 
-.hero-content::before {
-    content: 'مسابقة حامل القرآن الكريم';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 5.5vw;
-    /* Reduced significantly for desktop to ensure elegance and single-line display */
-    font-family: 'Amiri', serif;
-    color: rgba(212, 175, 55, 0.04);
-    z-index: -1;
-    white-space: nowrap;
-    pointer-events: none;
-}
-
-.hero-badge {
-    display: inline-block;
-    padding: 8px 25px;
-    border: 1px solid var(--primary-gold);
-    border-radius: 50px;
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-    color: var(--primary-gold);
-    margin-bottom: 25px;
-    background: rgba(212, 175, 55, 0.1);
-}
-
-.announce-badge {
-    border-color: #ff4d4d;
-    color: #ff4d4d;
-    background: rgba(255, 77, 77, 0.1);
-    animation: pulse-red 2s infinite;
-}
-
-@keyframes pulse-red {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4);
-    }
-
-    70% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 10px rgba(255, 77, 77, 0);
-    }
-
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0);
-    }
-}
-
-.hero-subtitle-new {
-    font-size: 2rem;
-    color: var(--primary-gold);
-    margin-bottom: 20px;
-    letter-spacing: 4px;
-    font-family: 'Amiri', serif;
-    font-weight: 700;
-}
-
-.hero-title {
-    font-family: 'Tajawal', sans-serif;
-    font-weight: 900;
-    font-size: 4rem;
-    /* Reduced from 6rem to stay on one line on most desktop screens */
-    line-height: 1.2;
-    margin-bottom: 20px;
-    background: linear-gradient(45deg, #fff, var(--primary-gold), #fff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-}
-
-.sponsors-info {
-    font-size: 1.3rem;
-    margin-bottom: 30px;
-    color: var(--text-gray);
-    position: relative;
-    display: inline-block;
-    padding: 0 20px;
-}
-
-.sponsors-info::before,
-.sponsors-info::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 30px;
-    height: 1px;
-    background: var(--primary-gold);
-}
-
-.sponsors-info::before {
-    right: -20px;
-}
-
-.sponsors-info::after {
-    left: -20px;
-}
-
+/* Hide HTML text to show flyer text */
+.hero-badge,
+.hero-title,
+.hero-subtitle-new,
+.sponsors-info,
 .hero-description {
-    font-size: 1.3rem;
-    color: var(--text-gray);
-    margin-bottom: 45px;
-    max-width: 750px;
-    margin-inline: auto;
+    display: none !important;
 }
 
 .hero-btns {
-    width: 90%;
-    max-width: 450px;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
+    justify-content: center;
+    gap: 15px;
     z-index: 100;
+    width: 100%;
+    position: absolute;
+    bottom: 8%;
+    /* Adjust to match the position of text in the flyer */
+    padding: 0 20px;
 }
 
 .hero-btns .btn {
-    width: 100% !important;
-    height: 60px !important;
+    /* Use transparent hotspots without any visual styling */
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     color: transparent !important;
     cursor: pointer;
-    border-radius: 50px;
+    width: 160px;
+    height: 60px;
+    display: block;
+    border-radius: 10px;
+    transition: none;
+    /* Avoid any visual hints */
+}
+
+@media (max-width: 768px) {
+    .hero-btns {
+        flex-direction: column;
+        align-items: center;
+        bottom: 12%;
+        /* Higher up for mobile layout */
+        gap: 10px;
+    }
+
+    .hero-btns .btn {
+        width: 80%;
+        height: 50px;
+    }
+}
+
+.hero-btns .btn-primary {
+    background: linear-gradient(45deg, var(--dark-gold), var(--primary-gold));
+    border: none;
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+}
+
+.hero-btns .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: var(--primary-gold) !important;
 }
 
 .hero-btns .btn:hover {
-    background: rgba(255, 255, 255, 0.05) !important;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.6);
 }
 
-.hero-badge,
-.hero-title,
-.hero-subtitle-new,
-.sponsors-info,
-.hero-description,
-.hero-content::before {
-    display: none !important;
+@media (max-width: 768px) {
+    .hero {
+        background-size: contain;
+        align-items: flex-end;
+        padding-bottom: 8vh;
+    }
+
+    .hero-btns {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 20px;
+        gap: 15px;
+    }
+
+    .hero-btns .btn {
+        width: 100%;
+    }
+
+    /* On mobile, if these are overlays, we keep them transparent but functional */
+    /* This depends on the user's specific flyer design. 
+       If they want them VISIBLE, we keep the above. 
+       If they want them TRANSPARENT OVERLAYS, we use the following: */
+
+    .hero-btns.overlay-mode .btn {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: transparent !important;
+    }
 }
 
 .btn {
@@ -1623,6 +1531,161 @@ h3 {
     .submit-btn {
         font-size: 1.2rem;
         padding: 15px;
+    }
+}
+
+/* --- Countdown Timer --- */
+.countdown-section {
+    position: relative;
+    padding: 100px 0;
+    background: radial-gradient(circle at center, #111 0%, var(--bg-deep) 100%);
+    z-index: 10;
+    overflow: hidden;
+}
+
+.countdown-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://www.transparenttextures.com/patterns/black-paper.png');
+    /* Subtle texture */
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+.countdown-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    padding: 40px;
+    border-radius: 40px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.countdown-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.countdown-title {
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 40px;
+    font-family: 'Amiri', serif;
+    position: relative;
+}
+
+.countdown-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    transition: var(--transition-slow);
+}
+
+.countdown-item:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.countdown-item span {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--primary-gold);
+    /* Solid fallback color */
+    line-height: 1;
+    margin-bottom: 10px;
+    font-family: 'Tajawal', sans-serif;
+    text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    background: linear-gradient(to bottom, #fff, var(--primary-gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+    animation: numberPulse 2s infinite ease-in-out;
+}
+
+@keyframes numberPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.3));
+    }
+
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.8));
+    }
+}
+
+.countdown-item label {
+    font-size: 1rem;
+    color: var(--text-gray);
+    font-weight: 600;
+}
+
+.countdown-divider {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary-gold);
+    margin-bottom: 30px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.3;
+    }
+}
+
+@media (max-width: 600px) {
+    .countdown-card {
+        padding: 30px 15px;
+        border-radius: 25px;
+    }
+
+    .countdown-grid {
+        gap: 8px;
+    }
+
+    .countdown-item {
+        min-width: 70px;
+        padding: 15px 5px;
+    }
+
+    .countdown-item span {
+        font-size: 2rem;
+    }
+
+    .countdown-title {
+        font-size: 1.5rem;
     }
 }
 

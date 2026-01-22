@@ -18,33 +18,14 @@
     <!-- Animation Lib -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- Preload Hero Image -->
+    <link rel="preload" href="hero_mobile.jpg" as="image">
 </head>
 
 <body>
 
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container border-nav">
-            <div class="logo">
-                <span class="logo-text">مسابقة حامل القرآن الكريم</span>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#hero">الرئيسية</a></li>
-                <li><a href="#apply">التقديم</a></li>
-                <li><a href="#about">عن المسابقة</a></li>
-                <li><a href="#categories">المستويات</a></li>
-                <li><a href="#honoring">التكريم</a></li>
-                <li><a href="#loyalty">لمسة وفاء</a></li>
-                <li><a href="#contact">تواصل معنا</a></li>
-            </ul>
-            <div class="nav-toggle" id="navToggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </nav>
+
 
     <!-- Hero Section -->
     <section id="hero" class="hero">
@@ -59,7 +40,6 @@
                 وفاءً لخدمة كتاب الله وتكريماً لحفظته.</p>
             <div class="hero-btns">
                 <a href="#apply" class="btn btn-primary">قدم الآن إلكترونياً</a>
-                <a href="#about" class="btn btn-secondary">اكتشف المزيد</a>
             </div>
         </div>
         <div class="scroll-indicator">
@@ -543,6 +523,33 @@
                 <div class="decorative-line"></div>
             </div>
 
+            <div id="countdown" class="countdown-section" data-aos="fade-up">
+                <div class="countdown-card">
+                    <h3 class="countdown-title">متبقي على فتح باب التقديم الإلكتروني</h3>
+                    <div class="countdown-grid">
+                        <div class="countdown-item">
+                            <span id="days">14</span>
+                            <label>يوم</label>
+                        </div>
+                        <div class="countdown-divider">:</div>
+                        <div class="countdown-item">
+                            <span id="hours">00</span>
+                            <label>ساعة</label>
+                        </div>
+                        <div class="countdown-divider">:</div>
+                        <div class="countdown-item">
+                            <span id="minutes">05</span>
+                            <label>دقيقة</label>
+                        </div>
+                        <div class="countdown-divider">:</div>
+                        <div class="countdown-item">
+                            <span id="seconds">30</span>
+                            <label>ثانية</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="apply-container" data-aos="fade-up">
                 <div class="apply-card glass-card luxury-border">
                     <div class="form-header">
@@ -589,15 +596,21 @@
                             </div>
 
                             <div class="input-group">
-                                <label for="phone1"><i class="fas fa-phone"></i> رقم التليفون (واتساب)</label>
+                                <label for="phone1"><i class="fas fa-phone"></i> رقم هاتف المتسابق</label>
                                 <input type="tel" id="phone1" name="phone1" placeholder="01xxxxxxxxx" minlength="11"
                                     pattern="[0-9]{11,}" title="يرجى إدخال 11 رقم على الأقل" required>
                             </div>
 
                             <div class="input-group">
-                                <label for="phone2"><i class="fas fa-phone-alt"></i> رقم تليفون آخر</label>
+                                <label for="phone2"><i class="fas fa-phone-alt"></i> رقم هاتف ولي الأمر</label>
                                 <input type="tel" id="phone2" name="phone2" placeholder="01xxxxxxxxx" minlength="11"
                                     pattern="[0-9]{11,}" title="يرجى إدخال 11 رقم على الأقل" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="phone3"><i class="fas fa-phone-alt"></i> رقم هاتف آخر</label>
+                                <input type="tel" id="phone3" name="phone3" placeholder="01xxxxxxxxx" minlength="11"
+                                    pattern="[0-9]{11,}" title="يرجى إدخال 11 رقم على الأقل">
                             </div>
 
                             <div class="input-group">
@@ -613,32 +626,11 @@
                             </div>
 
                             <div class="input-group">
-                                <label for="sheikhPhone"><i class="fas fa-mobile-alt"></i> رقم الشيخ المحفظ</label>
+                                <label for="sheikhPhone"><i class="fas fa-mobile-alt"></i> رقم هاتف الشيخ المحفظ</label>
                                 <input type="tel" id="sheikhPhone" name="sheikhPhone" placeholder="01xxxxxxxxx"
                                     minlength="11" pattern="[0-9]{11,}" title="يرجى إدخال 11 رقم على الأقل" required>
                             </div>
 
-                            <div class="input-group full-width">
-                                <label><i class="fas fa-images"></i> الأوراق المطلوبة (اختياري حالياً للتجربة)</label>
-                                <div class="file-uploads-grid">
-                                    <div class="file-input-wrapper">
-                                        <span class="file-label">شهادة الميلاد</span>
-                                        <input type="file" id="birthCertificate" name="birthCertificate"
-                                            accept="image/*">
-                                        <i class="fas fa-file-upload"></i>
-                                    </div>
-                                    <div class="file-input-wrapper">
-                                        <span class="file-label">الصورة الشخصية</span>
-                                        <input type="file" id="personalPhoto" name="personalPhoto" accept="image/*">
-                                        <i class="fas fa-user-circle"></i>
-                                    </div>
-                                    <div class="file-input-wrapper">
-                                        <span class="file-label">إيصال فودافون كاش</span>
-                                        <input type="file" id="paymentReceipt" name="paymentReceipt" accept="image/*">
-                                        <i class="fas fa-receipt"></i>
-                                    </div>
-                                </div>
-                            </div>
 
                         </div>
 
@@ -654,26 +646,34 @@
                                 </label>
 
                                 <label class="level-btn">
-                                    <input type="radio" name="level" value="المستوى الثاني (نصف القرآن)">
+                                    <input type="radio" name="level" value="المستوى الثاني (ثلاثة أرباع القرآن)">
                                     <span class="level-content">
                                         <span class="level-title">المستوى الثاني</span>
+                                        <span class="level-desc">ثلاثة أرباع القرآن</span>
+                                    </span>
+                                </label>
+
+                                <label class="level-btn">
+                                    <input type="radio" name="level" value="المستوى الثالث (نصف القرآن)">
+                                    <span class="level-content">
+                                        <span class="level-title">المستوى الثالث</span>
                                         <span class="level-desc">نصف القرآن الكريم</span>
                                     </span>
                                 </label>
 
                                 <label class="level-btn">
-                                    <input type="radio" name="level" value="المستوى الثالث (ربع القرآن)">
+                                    <input type="radio" name="level" value="المستوى الرابع (ربع القرآن)">
                                     <span class="level-content">
-                                        <span class="level-title">المستوى الثالث</span>
+                                        <span class="level-title">المستوى الرابع</span>
                                         <span class="level-desc">ربع القرآن الكريم</span>
                                     </span>
                                 </label>
 
                                 <label class="level-btn">
-                                    <input type="radio" name="level" value="المستوى الرابع (ثلاثة أجزاء)">
+                                    <input type="radio" name="level" value="المستوى الخامس (البراعم - 5 أجزاء)">
                                     <span class="level-content">
-                                        <span class="level-title">المستوى الرابع</span>
-                                        <span class="level-desc">ثلاثة أجزاء</span>
+                                        <span class="level-title">المستوى الخامس</span>
+                                        <span class="level-desc">البراعم (5 أجزاء)</span>
                                     </span>
                                 </label>
                             </div>
@@ -799,6 +799,10 @@
                 <p>عزيزي المتسابق: <strong id="displayStudentName"></strong></p>
                 <p>لقد تم تخصيص رقم جلوس خاص بك:</p>
                 <div class="seat-number-display" id="displaySeatNumber">0000</div>
+                <p style="font-size: 1.5rem; color: #fff; margin-bottom: 20px;">
+                    رقم اللجنة: <strong id="displayCommittee"
+                        style="color: #d4af37; background: rgba(212, 175, 55, 0.1); padding: 5px 15px; border-radius: 10px; border: 1px solid #d4af37;">-</strong>
+                </p>
                 <p class="seat-note">⚠️ يرجى تصوير الشاشة (Screenshot) أو الاحتفاظ بهذا الرقم، حيث ستؤدي به الاختبار.
                 </p>
             </div>
