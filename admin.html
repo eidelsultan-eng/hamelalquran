@@ -142,6 +142,65 @@
             border: 1px solid #ff69b4;
         }
 
+        /* Modal Styles for Image Viewing */
+        .img-preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .img-preview-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border: 3px solid #d4af37;
+            border-radius: 10px;
+        }
+
+        .close-preview {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 2.5rem;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .close-preview:hover {
+            background: #ff4d4d;
+            transform: rotate(90deg);
+        }
+
+        .download-btn {
+            position: absolute;
+            bottom: 30px;
+            background: #28a745;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
         .login-overlay {
             position: fixed;
             top: 0;
@@ -248,7 +307,6 @@
         </div>
 
         <div id="registrationsSection">
-            <!-- Sub-tabs for Level and Gender -->
             <div class="registration-filters"
                 style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;">
                 <div
@@ -284,13 +342,12 @@
                     <thead>
                         <tr>
                             <th>الاسم</th>
+                            <th>رقم الجلوس</th>
                             <th>النوع</th>
                             <th>المستوى</th>
+                            <th>الأوراق المرفوعة</th>
                             <th>رقم الواتساب</th>
-                            <th>رقم إضافي</th>
-                            <th>العنوان</th>
                             <th>الشيخ المحفظ</th>
-                            <th>رقم الشيخ</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
@@ -299,6 +356,14 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div id="imgPreviewModal" class="img-preview-modal">
+            <span class="close-preview" onclick="closeImgPreview()">&times;</span>
+            <img id="previewImg" src="">
+            <a id="downloadLink" href="#" download class="download-btn">
+                <i class="fas fa-download"></i> تحميل الصورة
+            </a>
         </div>
 
         <div id="messagesSection" style="display:none;">
@@ -345,9 +410,10 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <script>
-        // --- Firebase Configuration (نفس القيم في script.js) ---
+        // --- Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyA6fnq6E4P4aLvtOLRfUogPNLV__MIlcD8",
             authDomain: "dddd-3161a.firebaseapp.com",
@@ -363,7 +429,7 @@
 
         function checkPassword() {
             const pass = document.getElementById('adminPassword').value;
-            if (pass === '01000qwe') { // كلمة المرور الجديدة
+            if (pass === '01000qwe') {
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
                 loadData();
@@ -477,8 +543,34 @@
             }
         }
 
+        async function deleteRegistration(id) {
+            if (confirm('⚠️ تنبيه: هل أنت متأكد من حذف هذا المتسابق نهائياً؟')) {
+                try {
+                    await db.collection('registrations').doc(id).delete();
+                } catch (error) {
+                    alert('خطأ أثناء الحذف');
+                }
+            }
+        }
+
+        function showImgPreview(url) {
+            const modal = document.getElementById('imgPreviewModal');
+            const img = document.getElementById('previewImg');
+            const downloadLink = document.getElementById('downloadLink');
+
+            img.src = url;
+            downloadLink.href = url;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeImgPreview() {
+            document.getElementById('imgPreviewModal').style.display = 'none';
+        }
+
         function renderRegistrations() {
             const list = document.getElementById('registrationsList');
+            if (!list) return;
             list.innerHTML = '';
 
             let filtered = allRegistrations.filter(reg => {
@@ -488,11 +580,10 @@
             });
 
             if (filtered.length === 0) {
-                list.innerHTML = '<tr><td colspan="9" style="text-align:center;">لا توجد بيانات تطابق الاختيار</td></tr>';
+                list.innerHTML = '<tr><td colspan="7" style="text-align:center;">لا توجد بيانات تطابق الاختيار</td></tr>';
                 return;
             }
 
-            // Grouping by level for visual separation
             let grouped = {};
             filtered.forEach(data => {
                 if (!grouped[data.level]) grouped[data.level] = [];
@@ -500,21 +591,29 @@
             });
 
             for (const level in grouped) {
-                list.innerHTML += `<tr style="background: rgba(212, 175, 55, 0.2);"><td colspan="9" style="text-align:right; font-weight:bold; color:#d4af37; padding-right: 20px;">📂 ${level} (${grouped[level].length})</td></tr>`;
+                list.innerHTML += `<tr style="background: rgba(212, 175, 55, 0.2);"><td colspan="8" style="text-align:right; font-weight:bold; color:#d4af37; padding-right: 20px;">📂 ${level} (${grouped[level].length})</td></tr>`;
 
                 grouped[level].forEach(data => {
+                    const docsHtml = `
+                        <div style="display:flex; gap:5px;">
+                            ${data.birthCertificateUrl ? `<button onclick="showImgPreview('${data.birthCertificateUrl}')" class="btn-view btn-img" title="شهادة الميلاد"><i class="fas fa-file-invoice"></i></button>` : ''}
+                            ${data.personalPhotoUrl ? `<button onclick="showImgPreview('${data.personalPhotoUrl}')" class="btn-view btn-img" title="الصورة الشخصية"><i class="fas fa-user"></i></button>` : ''}
+                            ${data.paymentReceiptUrl ? `<button onclick="showImgPreview('${data.paymentReceiptUrl}')" class="btn-view btn-img" title="إيصال الدفع" style="background:#28a745; color:white;"><i class="fas fa-receipt"></i></button>` : ''}
+                            ${(!data.birthCertificateUrl && !data.personalPhotoUrl && !data.paymentReceiptUrl) ? '<span style="color:#666; font-size:0.8rem;">لا يوجد</span>' : ''}
+                        </div>
+                    `;
+
                     const row = `
                         <tr>
-                            <td>${data.studentName}</td>
+                            <td style="font-weight:bold;">${data.studentName}</td>
+                            <td><span style="background: rgba(212, 175, 55, 0.1); color: #d4af37; padding: 5px 12px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(212, 175, 55, 0.3); font-size: 1.1rem;">${data.seatNumber || '-'}</span></td>
                             <td><span class="badge ${data.gender === 'بنين' ? 'badge-blue' : 'badge-pink'}">${data.gender || '-'}</span></td>
-                            <td>${data.level}</td>
+                            <td><div style="font-size:0.8rem;">${data.level}</div></td>
+                            <td>${docsHtml}</td>
                             <td>${data.phone1}</td>
-                            <td>${data.phone2 || '-'}</td>
-                            <td>${data.address}</td>
                             <td>${data.sheikhName}</td>
-                            <td>${data.sheikhPhone || '-'}</td>
                             <td>
-                                <button onclick="deleteRegistration('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                <button onclick="deleteRegistration('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
@@ -525,14 +624,14 @@
 
         async function loadMessages() {
             const list = document.getElementById('messagesList');
-            list.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري تحميل الرسائل...</td></tr>';
+            if (!list) return;
+            list.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري تحميل الرسائل...</td></tr>';
 
             try {
-                // Removing .orderBy to avoid index requirement for new users
                 db.collection('messages').onSnapshot((snapshot) => {
                     list.innerHTML = '';
                     if (snapshot.empty) {
-                        list.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد رسائل حالياً</td></tr>';
+                        list.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد رسائل حالياً</td></tr>';
                         return;
                     }
 
@@ -543,7 +642,6 @@
                         messages.push(data);
                     });
 
-                    // Sort locally if timestamp exists
                     messages.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
 
                     messages.forEach(data => {
@@ -555,15 +653,12 @@
                                 <td style="max-width:300px;">${data.message}</td>
                                 <td>${date}</td>
                                 <td>
-                                    <button onclick="deleteMessage('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                    <button onclick="deleteMessage('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i></button>
                                 </td>
                             </tr>
                         `;
                         list.innerHTML += row;
                     });
-                }, (error) => {
-                    console.error("Firestore Error:", error);
-                    list.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">حدث خطأ في جلب الرسائل.</td></tr>';
                 });
             } catch (error) {
                 console.error("Error loading messages: ", error);
@@ -586,16 +681,16 @@
             if (currentNominationUnsubscribe) currentNominationUnsubscribe();
 
             const list = document.getElementById('nominationsList');
-            list.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري تحميل الترشيحات...</td></tr>';
+            if (!list) return;
+            list.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل الترشيحات...</td></tr>';
 
             try {
-                // Query by awardType, but sort locally to avoid index requirement
                 currentNominationUnsubscribe = db.collection('nominations')
                     .where('awardType', '==', type)
                     .onSnapshot((snapshot) => {
                         list.innerHTML = '';
                         if (snapshot.empty) {
-                            list.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد ترشيحات حالياً لهذا القسم</td></tr>';
+                            list.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا توجد ترشيحات حالياً لهذا القسم</td></tr>';
                             return;
                         }
 
@@ -606,7 +701,6 @@
                             noms.push(data);
                         });
 
-                        // Sort locally
                         noms.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
 
                         noms.forEach(data => {
@@ -619,15 +713,12 @@
                                     <td style="max-width:300px;">${data.reason}</td>
                                     <td>${date}</td>
                                     <td>
-                                        <button onclick="deleteNomination('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i> حذف</button>
+                                        <button onclick="deleteNomination('${data.id}')" class="btn-view btn-delete"><i class="fas fa-trash"></i></button>
                                     </td>
                                 </tr>
                             `;
                             list.innerHTML += row;
                         });
-                    }, (error) => {
-                        console.error("Firestore Error:", error);
-                        list.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">خطأ: تأكد من وصول الإنترنت أو إعدادات قاعدة البيانات.</td></tr>';
                     });
             } catch (error) {
                 console.error("Error loading nominations: ", error);
@@ -644,20 +735,9 @@
             }
         }
 
-        async function deleteRegistration(id) {
-            if (confirm('⚠️ تنبيه: هل أنت متأكد من حذف هذا المتسابق نهائياً؟')) {
-                try {
-                    await db.collection('registrations').doc(id).delete();
-                } catch (error) {
-                    alert('خطأ أثناء الحذف');
-                }
-            }
-        }
-
-        // Close on ESC key
         document.addEventListener('keydown', (e) => {
             if (e.key === "Escape") {
-                // Modal is removed, but keeping ESC listener for future use is optional
+                closeImgPreview();
             }
         });
     </script>

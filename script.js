@@ -203,6 +203,30 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // File selection preview
+        const fileInputs = registrationForm.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const wrapper = input.parentElement;
+                const fileName = e.target.files[0]?.name;
+
+                if (fileName) {
+                    wrapper.classList.add('has-file');
+                    let preview = wrapper.querySelector('.file-name-preview');
+                    if (!preview) {
+                        preview = document.createElement('div');
+                        preview.className = 'file-name-preview';
+                        wrapper.appendChild(preview);
+                    }
+                    preview.textContent = fileName;
+                } else {
+                    wrapper.classList.remove('has-file');
+                    const preview = wrapper.querySelector('.file-name-preview');
+                    if (preview) preview.remove();
+                }
+            });
+        });
+
         registrationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const studentName = registrationForm.querySelector('input[name="studentName"]').value.trim();
@@ -215,49 +239,117 @@ document.addEventListener('DOMContentLoaded', () => {
             if (submitBtn) {
                 submitBtn.disabled = true;
                 if (loader) loader.style.display = 'inline-block';
-                if (btnText) btnText.textContent = 'جاري المعالجة...';
+                if (btnText) btnText.textContent = 'جاري رفع الملفات والبيانات...';
             }
 
-            // Timeout function
-            const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error("استغرق الطلب وقتاً طويلاً جداً (Timeout)")), ms));
-
             try {
-                const formData = new FormData(registrationForm);
-                const gender = formData.get('gender');
-                const phone1 = formData.get('phone1');
-                const phone2 = formData.get('phone2');
-                const address = formData.get('address');
-                const sheikhName = formData.get('sheikhName');
-                const sheikhPhone = formData.get('sheikhPhone');
-                const level = formData.get('level');
+                // 1. Upload files to Firebase Storage
+                let uploadedUrls = {
+                    birthCertificate: null,
+                    personalPhoto: null,
+                    paymentReceipt: null
+                };
 
-                let dataSavedToCloud = false;
+                if (isFirebaseConfigured && firebase.storage) {
+                    const storage = firebase.storage();
+                    const uploadFile = async (file, folder) => {
+                        if (!file) return null;
+                        if (btnText) btnText.textContent = `جاري رفع ${folder === 'birth' ? 'شهادة الميلاد' : folder === 'photo' ? 'الصورة' : 'الإيصال'}...`;
+                        const fileName = `${Date.now()}_${file.name}`;
+                        const storageRef = storage.ref(`registrations/${fileName}`);
+                        await storageRef.put(file);
+                        return await storageRef.getDownloadURL();
+                    };
+
+                    const birthCertFile = document.getElementById('birthCertificate').files[0];
+                    const photoFile = document.getElementById('personalPhoto').files[0];
+                    const receiptFile = document.getElementById('paymentReceipt').files[0];
+
+                    if (birthCertFile) uploadedUrls.birthCertificate = await uploadFile(birthCertFile, 'birth');
+                    if (photoFile) uploadedUrls.personalPhoto = await uploadFile(photoFile, 'photo');
+                    if (receiptFile) uploadedUrls.paymentReceipt = await uploadFile(receiptFile, 'receipt');
+                }
+
+                // 2. Prepare Data for Firestore
+                const formData = new FormData(registrationForm);
+                const registrationData = {
+                    studentName,
+                    gender: formData.get('gender'),
+                    phone1: formData.get('phone1'),
+                    phone2: formData.get('phone2'),
+                    address: formData.get('address'),
+                    sheikhName: formData.get('sheikhName'),
+                    sheikhPhone: formData.get('sheikhPhone'),
+                    level: formData.get('level'),
+                    // Save full URLs from Firebase Storage
+                    birthCertificateUrl: uploadedUrls.birthCertificate,
+                    personalPhotoUrl: uploadedUrls.personalPhoto,
+                    paymentReceiptUrl: uploadedUrls.paymentReceipt,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
 
                 if (isFirebaseConfigured && db) {
-                    try {
-                        if (btnText) btnText.textContent = 'جاري حفظ البيانات...';
-                        await Promise.race([
-                            db.collection('registrations').add({
-                                studentName, gender, phone1, phone2, address, sheikhName, sheikhPhone, level,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            }),
-                            timeout(10000)
-                        ]);
-                        dataSavedToCloud = true;
-                    } catch (dbErr) {
-                        console.error("Cloud DB Error:", dbErr);
-                    }
+                    if (btnText) btnText.textContent = 'جاري حجز رقم الجلوس...';
+
+                    const counterRef = db.collection('counters').doc(`${registrationData.gender}_${registrationData.level}`);
+
+                    const seatNumber = await db.runTransaction(async (transaction) => {
+                        const counterDoc = await transaction.get(counterRef);
+                        let count = 0;
+                        if (counterDoc.exists) {
+                            count = counterDoc.data().count;
+                        }
+
+                        // Define ranges based on gender and level
+                        const ranges = {
+                            'بنين': {
+                                'المستوى الأول (القرآن كاملاً)': 4000,
+                                'المستوى الثاني (نصف القرآن)': 4301,
+                                'المستوى الثالث (ربع القرآن)': 4801,
+                                'المستوى الرابع (ثلاثة أجزاء)': 5501
+                            },
+                            'بنات': {
+                                'المستوى الأول (القرآن كاملاً)': 2000,
+                                'المستوى الثاني (نصف القرآن)': 2301,
+                                'المستوى الثالث (ربع القرآن)': 2801,
+                                'المستوى الرابع (ثلاثة أجزاء)': 3501
+                            }
+                        };
+
+                        const start = ranges[registrationData.gender][registrationData.level];
+                        const assignedSeat = start + count;
+
+                        // Update counter for next student
+                        transaction.set(counterRef, { count: count + 1 });
+
+                        // Add the registration document with seat number
+                        const newRegRef = db.collection('registrations').doc();
+                        registrationData.seatNumber = assignedSeat;
+                        transaction.set(newRegRef, registrationData);
+
+                        return assignedSeat;
+                    });
+
+                    // Success UI update
+                    document.getElementById('displayStudentName').textContent = studentName;
+                    document.getElementById('displaySeatNumber').textContent = seatNumber;
+                    document.getElementById('seatNumberModal').style.display = 'flex';
                 }
 
                 localStorage.setItem(`registered_${studentName}`, 'true');
                 registrationForm.reset();
                 if (agreeTerms) agreeTerms.checked = false;
 
-                alert('تم التقديم بنجاح! شكراً لك.');
+                // Clear file previews
+                registrationForm.querySelectorAll('.file-input-wrapper').forEach(w => {
+                    w.classList.remove('has-file');
+                    const p = w.querySelector('.file-name-preview');
+                    if (p) p.remove();
+                });
 
             } catch (error) {
-                console.error("Critical Error:", error);
-                alert('حدث خطأ غير متوقع: ' + error.message);
+                console.error("Submission Error:", error);
+                alert('حدث خطأ أثناء الإرسال: ' + error.message);
             } finally {
                 if (submitBtn) {
                     submitBtn.disabled = true;
@@ -269,6 +361,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Modal close function
+    window.closeSeatModal = () => {
+        document.getElementById('seatNumberModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    };
 
     // --- Gallery & Lightbox Logic ---
     const galleryItems = document.querySelectorAll('.gallery-item');

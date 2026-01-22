@@ -242,9 +242,9 @@
                     <thead>
                         <tr>
                             <th style="width: 5%">م</th>
+                            <th style="width: 10%">رقم الجلوس</th>
                             <th style="width: 20%">اسم المتسابق</th>
                             <th style="width: 10%">النوع</th>
-                            <th style="width: 20%">المستوى</th>
                             <th style="width: 15%">رقم الهاتف</th>
                             <th style="width: 10%">الشروط</th>
                             <th style="width: 10%">الحضور</th>
@@ -260,9 +260,9 @@
                     const row = `
                         <tr>
                             <td>${counter++}</td>
-                            <td style="text-align: right;">${data.studentName}</td>
+                            <td style="font-weight: bold; background: #fefefe;">${data.seatNumber || '-'}</td>
+                            <td style="text-align: right; font-weight: bold;">${data.studentName}</td>
                             <td>${data.gender || '-'}</td>
-                            <td>${data.level}</td>
                             <td>${data.phone1}</td>
                             <td></td>
                             <td></td>

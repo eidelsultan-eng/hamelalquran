@@ -618,6 +618,28 @@
                                     minlength="11" pattern="[0-9]{11,}" title="يرجى إدخال 11 رقم على الأقل" required>
                             </div>
 
+                            <div class="input-group full-width">
+                                <label><i class="fas fa-images"></i> الأوراق المطلوبة (اختياري حالياً للتجربة)</label>
+                                <div class="file-uploads-grid">
+                                    <div class="file-input-wrapper">
+                                        <span class="file-label">شهادة الميلاد</span>
+                                        <input type="file" id="birthCertificate" name="birthCertificate"
+                                            accept="image/*">
+                                        <i class="fas fa-file-upload"></i>
+                                    </div>
+                                    <div class="file-input-wrapper">
+                                        <span class="file-label">الصورة الشخصية</span>
+                                        <input type="file" id="personalPhoto" name="personalPhoto" accept="image/*">
+                                        <i class="fas fa-user-circle"></i>
+                                    </div>
+                                    <div class="file-input-wrapper">
+                                        <span class="file-label">إيصال فودافون كاش</span>
+                                        <input type="file" id="paymentReceipt" name="paymentReceipt" accept="image/*">
+                                        <i class="fas fa-receipt"></i>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="level-selection">
@@ -758,12 +780,101 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <!-- Lightbox Modal -->
     <div id="lightbox" class="lightbox">
         <span class="lightbox-close">&times;</span>
         <img class="lightbox-content" id="lightbox-img">
     </div>
+
+    <!-- Seat Number Modal -->
+    <div id="seatNumberModal" class="seat-modal">
+        <div class="seat-modal-content" data-aos="zoom-in">
+            <div class="seat-modal-header">
+                <i class="fas fa-id-card-alt"></i>
+                <h2>تم التسجيل بنجاح!</h2>
+            </div>
+            <div class="seat-info-body">
+                <p>عزيزي المتسابق: <strong id="displayStudentName"></strong></p>
+                <p>لقد تم تخصيص رقم جلوس خاص بك:</p>
+                <div class="seat-number-display" id="displaySeatNumber">0000</div>
+                <p class="seat-note">⚠️ يرجى تصوير الشاشة (Screenshot) أو الاحتفاظ بهذا الرقم، حيث ستؤدي به الاختبار.
+                </p>
+            </div>
+            <button onclick="closeSeatModal()" class="btn btn-primary">حسناً، فهمت</button>
+        </div>
+    </div>
+
+    <style>
+        .seat-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .seat-modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 2px solid #d4af37;
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(212, 175, 55, 0.2);
+            color: #fff;
+        }
+
+        .seat-modal-header i {
+            font-size: 3.5rem;
+            color: #d4af37;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .seat-modal-header h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .seat-info-body p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+
+        .seat-number-display {
+            font-family: 'Cairo', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px dashed #d4af37;
+            margin: 20px 0;
+            letter-spacing: 5px;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .seat-note {
+            font-size: 0.9rem !important;
+            color: #ff9d00 !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+            margin-top: 20px;
+        }
+    </style>
 
     <script src="script.js"></script>
 </body>
