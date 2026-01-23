@@ -309,6 +309,8 @@
             <button onclick="switchTab('maleTeacher')" id="tabMale" class="btn btn-secondary">المعلم المثالي</button>
             <button onclick="switchTab('femaleTeacher')" id="tabFemale" class="btn btn-secondary">المعلمة
                 المثالية</button>
+            <button onclick="switchTab('settings')" id="tabSettings" class="btn btn-secondary"><i
+                    class="fas fa-cog"></i> إعدادات المسابقة</button>
         </div>
 
         <div id="registrationsSection">
@@ -435,6 +437,42 @@
                 </table>
             </div>
         </div>
+
+        <div id="settingsSection" style="display:none;">
+            <div class="apply-card"
+                style="background: rgba(255,255,255,0.03); padding: 30px; border-radius: 20px; border: 1px solid #d4af37;">
+                <h2 style="color: #d4af37; margin-bottom: 30px;"><i class="fas fa-sliders-h"></i> التحكم في فتح وغلق
+                    التقديم</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                    <!-- Registration Toggle -->
+                    <div
+                        style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                        <h3 style="margin-bottom: 20px;"><i class="fas fa-edit"></i> تقديم المتسابقين</h3>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span id="regStatusLabel" style="font-weight: bold; color: #aaa;">الحالة الحالية: ...</span>
+                            <button id="regToggleButton" class="btn btn-primary"
+                                onclick="toggleStatus('registrationStatus')">جاري التحميل...</button>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #888; margin-top: 15px;">عند الغلق، لن يتمكن المتسابقون من
+                            إرسال طلبات التسجيل وسيظهر لهم تنبيه بأن التقديم مغلق.</p>
+                    </div>
+
+                    <!-- Nominations Toggle -->
+                    <div
+                        style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                        <h3 style="margin-bottom: 20px;"><i class="fas fa-heart"></i> ترشيحات الأم/المعلم المثالي</h3>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span id="nomStatusLabel" style="font-weight: bold; color: #aaa;">الحالة الحالية: ...</span>
+                            <button id="nomToggleButton" class="btn btn-primary"
+                                onclick="toggleStatus('nominationStatus')">جاري التحميل...</button>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #888; margin-top: 15px;">عند الغلق، لن تظهر استمارة الترشيح
+                            في الموقع وسيظهر بدلاً منها رسالة توضح موعد التقديم.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -474,15 +512,15 @@
         }
 
         function switchTab(tab) {
-            document.getElementById('registrationsSection').style.display = 'none';
-            document.getElementById('messagesSection').style.display = 'none';
             document.getElementById('nominationsSection').style.display = 'none';
+            document.getElementById('settingsSection').style.display = 'none';
 
             document.getElementById('tabRegs').className = 'btn btn-secondary';
             document.getElementById('tabMsgs').className = 'btn btn-secondary';
             document.getElementById('tabMother').className = 'btn btn-secondary';
             document.getElementById('tabMale').className = 'btn btn-secondary';
             document.getElementById('tabFemale').className = 'btn btn-secondary';
+            document.getElementById('tabSettings').className = 'btn btn-secondary';
 
             if (tab === 'registrations') {
                 document.getElementById('registrationsSection').style.display = 'block';
@@ -503,6 +541,10 @@
                 document.getElementById('nominationsSection').style.display = 'block';
                 document.getElementById('tabFemale').className = 'btn btn-primary';
                 loadNominations('المعلمة المثالية');
+            } else if (tab === 'settings') {
+                document.getElementById('settingsSection').style.display = 'block';
+                document.getElementById('tabSettings').className = 'btn btn-primary';
+                loadSettings();
             }
         }
 
@@ -837,6 +879,73 @@
                 closeImgPreview();
             }
         });
+
+        // --- Settings Logic ---
+        let appSettings = {
+            registrationStatus: 'open',
+            nominationStatus: 'open'
+        };
+
+        async function loadSettings() {
+            try {
+                const doc = await db.collection('settings').doc('appConfig').get();
+                if (doc.exists) {
+                    appSettings = doc.data();
+                } else {
+                    // Initialize if not exists
+                    await db.collection('settings').doc('appConfig').set(appSettings);
+                }
+                updateSettingsUI();
+            } catch (error) {
+                console.error("Error loading settings:", error);
+            }
+        }
+
+        function updateSettingsUI() {
+            const regLabel = document.getElementById('regStatusLabel');
+            const regBtn = document.getElementById('regToggleButton');
+            const nomLabel = document.getElementById('nomStatusLabel');
+            const nomBtn = document.getElementById('nomToggleButton');
+
+            if (!regLabel || !regBtn || !nomLabel || !nomBtn) return;
+
+            if (appSettings.registrationStatus === 'open') {
+                regLabel.innerHTML = 'الحالة الحالية: <span style="color: #28a745;">مفتوح ✅</span>';
+                regBtn.textContent = 'غلق التقديم';
+                regBtn.style.background = '#ff4d4d';
+            } else {
+                regLabel.innerHTML = 'الحالة الحالية: <span style="color: #ff4d4d;">مغلق ❌</span>';
+                regBtn.textContent = 'فتح التقديم';
+                regBtn.style.background = '#28a745';
+            }
+
+            if (appSettings.nominationStatus === 'open') {
+                nomLabel.innerHTML = 'الحالة الحالية: <span style="color: #28a745;">مفتوح ✅</span>';
+                nomBtn.textContent = 'غلق الترشيحات';
+                nomBtn.style.background = '#ff4d4d';
+            } else {
+                nomLabel.innerHTML = 'الحالة الحالية: <span style="color: #ff4d4d;">مغلق ❌</span>';
+                nomBtn.textContent = 'فتح الترشيحات';
+                nomBtn.style.background = '#28a745';
+            }
+        }
+
+        async function toggleStatus(field) {
+            const newValue = appSettings[field] === 'open' ? 'closed' : 'open';
+            const confirmMsg = newValue === 'open' ? 'هل تريد فتح باب التقديم؟' : 'هل تريد غلق باب التقديم؟';
+
+            if (confirm(confirmMsg)) {
+                try {
+                    await db.collection('settings').doc('appConfig').update({
+                        [field]: newValue
+                    });
+                    appSettings[field] = newValue;
+                    updateSettingsUI();
+                } catch (error) {
+                    alert('حدث خطأ أثناء التحديث');
+                }
+            }
+        }
     </script>
 </body>
 

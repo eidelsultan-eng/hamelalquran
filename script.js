@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Navbar Scroll Effect
     // --- Countdown Timer Logic ---
-    const countdownTarget = new Date("Feb 6, 2026 00:00:00").getTime();
+    const countdownTarget = new Date("Feb 8, 2026 00:00:00").getTime();
 
     const updateCountdown = () => {
         const now = new Date().getTime();
@@ -206,6 +206,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Global Settings enforcement ---
+    let appSettings = {
+        registrationStatus: 'open',
+        nominationStatus: 'open'
+    };
+
+    async function fetchSettings() {
+        if (!isFirebaseConfigured || !db) return;
+        try {
+            const doc = await db.collection('settings').doc('appConfig').get();
+            if (doc.exists) {
+                appSettings = doc.data();
+                applySettings();
+            }
+        } catch (err) {
+            console.error("Error fetching settings:", err);
+        }
+    }
+
+    function applySettings() {
+        // Main Registration Section enforcement
+        const regForm = document.getElementById('registrationForm');
+        const countdownEl = document.getElementById('countdown');
+
+        if (appSettings.registrationStatus === 'closed') {
+            if (regForm) {
+                const formHeader = regForm.closest('.apply-card')?.querySelector('.form-header p');
+                if (formHeader) {
+                    formHeader.innerHTML = '<span style="color: #ff4d4d; font-weight: bold; font-size: 1.2rem;">⚠️ عذراً، باب التقديم الإلكتروني مغلق حالياً.</span>';
+                }
+                regForm.style.opacity = '0.6';
+                regForm.style.pointerEvents = 'none';
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    const btxt = submitBtn.querySelector('.btn-text');
+                    if (btxt) btxt.textContent = 'باب التقديم مغلق';
+                    submitBtn.style.background = '#666';
+                }
+            }
+            // Update Hero Badge if it exists
+            const heroBadge = document.querySelector('.hero-badge');
+            if (heroBadge) {
+                heroBadge.textContent = 'باب التقديم مغلق حالياً';
+                heroBadge.style.background = 'rgba(255, 77, 77, 0.2)';
+                heroBadge.style.color = '#ff4d4d';
+                heroBadge.style.borderColor = '#ff4d4d';
+            }
+        } else {
+            // Normal state
+        }
+
+        // Nomination Section enforcement
+        const nominationForm = document.getElementById('nominationForm');
+        if (appSettings.nominationStatus === 'closed') {
+            if (nominationForm) {
+                nominationForm.style.opacity = '0.6';
+                nominationForm.style.pointerEvents = 'none';
+                const nomBtn = nominationForm.querySelector('button');
+                if (nomBtn) {
+                    nomBtn.disabled = true;
+                    nomBtn.textContent = 'باب الترشيح مغلق';
+                    nomBtn.style.background = '#666';
+                }
+            }
+        }
+    }
+
+    fetchSettings();
+
     // Registration Form logic
     const registrationForm = document.getElementById('registrationForm');
     if (registrationForm) {
@@ -216,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (agreeTerms && submitBtn) {
             agreeTerms.addEventListener('change', () => {
-                if (agreeTerms.checked) {
+                if (agreeTerms.checked && appSettings.registrationStatus === 'open') {
                     submitBtn.disabled = false;
                     submitBtn.style.opacity = '1';
                     submitBtn.style.cursor = 'pointer';
@@ -231,7 +301,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         registrationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const studentName = registrationForm.querySelector('input[name="studentName"]').value.trim();
+
+            if (appSettings.registrationStatus === 'closed') {
+                alert('عذراً، باب التقديم الإلكتروني مغلق حالياً.');
+                return;
+            }
+
+            const studentNameInput = registrationForm.querySelector('input[name="studentName"]');
+            if (!studentNameInput) return;
+            const studentName = studentNameInput.value.trim();
 
             if (localStorage.getItem(`registered_${studentName}`)) {
                 alert('عذراً، لقد قمت بالتقديم مسبقاً بهذا الاسم.');
@@ -410,6 +488,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nominationForm) {
         nominationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (appSettings.nominationStatus === 'closed') {
+                alert('عذراً، باب الترشيح مغلق حالياً.');
+                return;
+            }
+
             const submitNomBtn = nominationForm.querySelector('button[type="submit"]');
             const originalText = submitNomBtn.innerHTML;
 
