@@ -359,6 +359,7 @@
                         <tr>
                             <th>الاسم</th>
                             <th>رقم الجلوس</th>
+                            <th>السن</th>
                             <th>اللجنة</th>
                             <th>النوع</th>
                             <th>المستوى</th>
@@ -663,7 +664,7 @@
             });
 
             if (filtered.length === 0) {
-                list.innerHTML = '<tr><td colspan="8" style="text-align:center;">لا توجد بيانات تطابق الاختيار</td></tr>';
+                list.innerHTML = '<tr><td colspan="9" style="text-align:center;">لا توجد بيانات تطابق الاختيار</td></tr>';
                 return;
             }
 
@@ -674,7 +675,7 @@
             });
 
             for (const level in grouped) {
-                list.innerHTML += `<tr style="background: rgba(212, 175, 55, 0.2);"><td colspan="8" style="text-align:right; font-weight:bold; color:#d4af37; padding-right: 20px;">📂 ${level} (${grouped[level].length})</td></tr>`;
+                list.innerHTML += `<tr style="background: rgba(212, 175, 55, 0.2);"><td colspan="9" style="text-align:right; font-weight:bold; color:#d4af37; padding-right: 20px;">📂 ${level} (${grouped[level].length})</td></tr>`;
 
                 grouped[level].forEach(data => {
                     const docsHtml = `
@@ -687,6 +688,9 @@
                         <tr style="cursor: pointer;" onclick="showStudentDetails('${data.id}')">
                             <td style="font-weight:bold;">${data.studentName}</td>
                             <td><span style="background: rgba(212, 175, 55, 0.1); color: #d4af37; padding: 5px 12px; border-radius: 8px; font-weight: bold; border: 1px solid rgba(212, 175, 55, 0.3); font-size: 1.1rem;">${data.seatNumber || '-'}</span></td>
+                            <td style="font-weight:bold; color: #fff; font-size: 0.9rem;">
+                                ${data.ageYears || 0} س و ${data.ageMonths || 0} ش
+                            </td>
                             <td style="font-weight: bold; color: #fff;">${data.committee || '-'}</td>
                             <td><span class="badge ${data.gender === 'بنين' ? 'badge-blue' : 'badge-pink'}">${data.gender || '-'}</span></td>
                             <td><div style="font-size:0.8rem;">${data.level}</div></td>
@@ -714,33 +718,8 @@
             const content = document.getElementById('studentDetailsContent');
             content.innerHTML = `
                 <div><strong style="color: #d4af37;">الاسم:</strong><br>${data.studentName}</div>
-                <div><strong style="color: #d4af37;">رقم الجلوس:</strong><br>${data.seatNumber || '-'}</div>
-                <div><strong style="color: #d4af37;">رقم اللجنة:</strong><br>${data.committee || '-'}</div>
-                <div><strong style="color: #d4af37;">النوع:</strong><br>${data.gender || '-'}</div>
-                <div><strong style="color: #d4af37;">المستوى:</strong><br>${data.level}</div>
-                <div><strong style="color: #d4af37;">هاتف المتسابق:</strong><br>${data.phone1}</div>
-                <div><strong style="color: #d4af37;">هاتف ولي الأمر:</strong><br>${data.phone2}</div>
-                <div><strong style="color: #d4af37;">هاتف آخر:</strong><br>${data.phone3 || '-'}</div>
-                <div><strong style="color: #d4af37;">الشيخ المحفظ:</strong><br>${data.sheikhName}</div>
-                <div><strong style="color: #d4af37;">هاتف الشيخ:</strong><br>${data.sheikhPhone}</div>
-                <div style="grid-column: span 2;"><strong style="color: #d4af37;">العنوان:</strong><br>${data.address}</div>
-                <div style="grid-column: span 2;"><strong style="color: #d4af37;">تاريخ التسجيل:</strong><br>${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString('ar-EG') : '-'}</div>
-            `;
-
-            document.getElementById('detailsModal').style.display = 'flex';
-        }
-
-        function closeDetailsModal() {
-            document.getElementById('detailsModal').style.display = 'none';
-        }
-
-        function showStudentDetails(id) {
-            const data = allRegistrations.find(r => r.id === id);
-            if (!data) return;
-
-            const content = document.getElementById('studentDetailsContent');
-            content.innerHTML = `
-                <div><strong style="color: #d4af37;">الاسم:</strong><br>${data.studentName}</div>
+                <div><strong style="color: #d4af37;">الرقم القومي:</strong><br>${data.nationalID || '-'}</div>
+                <div><strong style="color: #d4af37;">السن المحسوب:</strong><br>${data.formattedAge || (data.ageYears ? data.ageYears + ' سنة' : '-')}</div>
                 <div><strong style="color: #d4af37;">رقم الجلوس:</strong><br>${data.seatNumber || '-'}</div>
                 <div><strong style="color: #d4af37;">رقم اللجنة:</strong><br>${data.committee || '-'}</div>
                 <div><strong style="color: #d4af37;">النوع:</strong><br>${data.gender || '-'}</div>

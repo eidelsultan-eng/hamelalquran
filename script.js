@@ -273,8 +273,57 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
     fetchSettings();
+
+    // --- National ID Age Calculation ---
+    function calculateAgeFromID(nationalID) {
+        if (!nationalID || nationalID.length < 7) return null;
+        const centuryDigit = nationalID[0];
+        const yearPart = nationalID.substring(1, 3);
+        const monthPart = nationalID.substring(3, 5);
+        const dayPart = nationalID.substring(5, 7);
+
+        let fullYear;
+        if (centuryDigit === '2') {
+            fullYear = 1900 + parseInt(yearPart);
+        } else if (centuryDigit === '3') {
+            fullYear = 2000 + parseInt(yearPart);
+        } else {
+            return null; // Invalid century digit
+        }
+
+        const birthDate = new Date(fullYear, parseInt(monthPart) - 1, parseInt(dayPart));
+        if (isNaN(birthDate.getTime())) return null;
+
+        const today = new Date();
+        let years = today.getFullYear() - birthDate.getFullYear();
+        let months = today.getMonth() - birthDate.getMonth();
+        let days = today.getDate() - birthDate.getDate();
+
+        if (days < 0) {
+            months--;
+            const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += lastMonth.getDate();
+        }
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+
+        return {
+            years,
+            months,
+            days,
+            birthDate: `${fullYear}-${monthPart}-${dayPart}`,
+            formattedAge: `${years} سنة و ${months} شهر و ${days} يوم`
+        };
+    }
+
+    // Modal Control Functions
+    window.proceedToFinalStep = () => {
+        document.getElementById('confirmationModal').style.display = 'none';
+        document.getElementById('seatNumberModal').style.display = 'flex';
+    };
 
     // Registration Form logic
     const registrationForm = document.getElementById('registrationForm');
@@ -308,11 +357,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const studentNameInput = registrationForm.querySelector('input[name="studentName"]');
-            if (!studentNameInput) return;
-            const studentName = studentNameInput.value.trim();
+            const nationalIDInput = registrationForm.querySelector('input[name="nationalID"]');
+            if (!studentNameInput || !nationalIDInput) return;
 
-            if (localStorage.getItem(`registered_${studentName}`)) {
-                alert('عذراً، لقد قمت بالتقديم مسبقاً بهذا الاسم.');
+            const studentName = studentNameInput.value.trim();
+            const nationalID = nationalIDInput.value.trim();
+
+            if (localStorage.getItem(`registered_id_${nationalID}`)) {
+                alert('عذراً، لقد قمت بالتقديم مسبقاً بهذا الرقم القومي.');
+                return;
+            }
+
+            const ageInfo = calculateAgeFromID(nationalID);
+            if (!ageInfo) {
+                alert('يرجى التأكد من صحة الرقم القومي (14 رقم تبدأ بـ 2 أو 3).');
                 return;
             }
 
@@ -328,6 +386,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData(registrationForm);
                 const registrationData = {
                     studentName,
+                    nationalID,
+                    ageYears: ageInfo.years,
+                    ageMonths: ageInfo.months,
+                    ageDays: ageInfo.days,
+                    birthDate: ageInfo.birthDate,
+                    formattedAge: ageInfo.formattedAge,
                     gender: formData.get('gender'),
                     phone1: formData.get('phone1'),
                     phone2: formData.get('phone2'),
@@ -392,10 +456,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('displaySeatNumber').textContent = seatNumber.assignedSeat;
                     const committeeDisplay = document.getElementById('displayCommittee');
                     if (committeeDisplay) committeeDisplay.textContent = seatNumber.committeeNumber;
-                    document.getElementById('seatNumberModal').style.display = 'flex';
+
+                    // Show Confirmation Warning Modal First
+                    document.getElementById('confirmationModal').style.display = 'flex';
                 }
 
-                localStorage.setItem(`registered_${studentName}`, 'true');
+                localStorage.setItem(`registered_id_${nationalID}`, 'true');
                 registrationForm.reset();
                 if (agreeTerms) agreeTerms.checked = false;
 

@@ -244,13 +244,14 @@
                         <tr>
                             <th style="width: 5%">م</th>
                             <th style="width: 10%">رقم الجلوس</th>
+                            <th style="width: 5%">السن</th>
                             <th style="width: 10%">اللجنة</th>
                             <th style="width: 20%">اسم المتسابق</th>
-                            <th style="width: 10%">النوع</th>
+                            <th style="width: 8%">النوع</th>
                             <th style="width: 15%">أرقام الهاتف</th>
-                            <th style="width: 5%">ش</th>
-                            <th style="width: 5%">ح</th>
-                            <th style="width: 10%">الدرجة</th>
+                            <th style="width: 4%">ش</th>
+                            <th style="width: 4%">ح</th>
+                            <th style="width: 9%">الدرجة</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -263,6 +264,7 @@
                         <tr>
                             <td>${counter++}</td>
                             <td style="font-weight: bold; background: #fefefe;">${data.seatNumber || '-'}</td>
+                            <td style="font-weight: bold; font-size: 11px;">${data.ageYears || 0}س و ${data.ageMonths || 0}ش</td>
                             <td style="font-weight: bold; color: #aa8c2c;">${data.committee || '-'}</td>
                             <td style="text-align: right; font-weight: bold;">${data.studentName}</td>
                             <td>${data.gender || '-'}</td>

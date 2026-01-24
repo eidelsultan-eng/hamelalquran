@@ -586,6 +586,13 @@
                             </div>
 
                             <div class="input-group">
+                                <label for="nationalID"><i class="fas fa-id-card"></i> الرقم القومي (من اليسار)</label>
+                                <input type="text" id="nationalID" name="nationalID" placeholder="2/3xxxxxxxxxxxx"
+                                    minlength="14" maxlength="14" pattern="[0-9]{14}" title="يرجى إدخال 14 رقم" required
+                                    style="direction: ltr; text-align: left;">
+                            </div>
+
+                            <div class="input-group">
                                 <label for="gender"><i class="fas fa-venus-mars"></i> النوع</label>
                                 <select name="gender" id="gender" required
                                     style="background: #fefefe; border: 1px solid #ddd; padding: 15px 20px; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 1rem; width: 100%;">
@@ -788,12 +795,55 @@
         <img class="lightbox-content" id="lightbox-img">
     </div>
 
+    <!-- Confirmation Warning Modal -->
+    <div id="confirmationModal" class="seat-modal" style="display: none; z-index: 3000;">
+        <div class="seat-modal-content" data-aos="zoom-in" style="border: 3px solid #ff4d4d; max-width: 500px;">
+            <div class="seat-modal-header" style="background: rgba(255, 77, 77, 0.1);">
+                <i class="fas fa-exclamation-triangle"
+                    style="color: #ff4d4d; font-size: 3rem; margin-bottom: 20px;"></i>
+                <h2 style="color: #ff4d4d;">تنبيه هــــــــام جداً!</h2>
+            </div>
+            <div class="seat-info-body" style="text-align: right; font-size: 1.1rem; line-height: 1.8;">
+                <p style="font-weight: bold; color: #fff; margin-bottom: 20px; text-align: center; font-size: 1.3rem;">
+                    يرجى العلم والالتزام بالآتي يوم الاختبار:
+                </p>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-money-bill-wave" style="color: #d4af37;"></i>
+                        <span>دفع رسم الاشتراك وقدره <strong>20 جنيهاً</strong>.</span>
+                    </li>
+                    <li style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-image" style="color: #d4af37;"></i>
+                        <span>إحضار <strong>صورة شخصية</strong> حديثة للمتسابق.</span>
+                    </li>
+                    <li style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-file-invoice" style="color: #d4af37;"></i>
+                        <span>إحضار <strong>شهادة ميلاد</strong> حديثة (كمبيوتر).</span>
+                    </li>
+                </ul>
+                <div
+                    style="background: rgba(212, 175, 55, 0.1); padding: 15px; border-radius: 10px; border: 1px dashed #d4af37; margin-top: 20px; text-align: center;">
+                    <p style="margin: 0; color: #d4af37; font-weight: bold;">لن يتم السماح بدخول الاختبار بدون هذه
+                        المتطلبات</p>
+                </div>
+            </div>
+            <div class="seat-modal-footer" style="margin-top: 30px; display: flex; justify-content: center;">
+                <button onclick="proceedToFinalStep()" class="btn btn-primary"
+                    style="padding: 12px 40px; font-size: 1.1rem;">
+                    فهمت وموافق، عرض رقم الجلوس <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Seat Number Modal -->
     <div id="seatNumberModal" class="seat-modal">
         <div class="seat-modal-content" data-aos="zoom-in">
             <div class="seat-modal-header">
                 <i class="fas fa-id-card-alt"></i>
                 <h2>تم التسجيل بنجاح!</h2>
+                <p style="color: #d4af37; font-weight: bold; margin-top: 10px;">🎉 ألف مبروك، أنت الآن مسجل في المسابقة
+                </p>
             </div>
             <div class="seat-info-body">
                 <p>عزيزي المتسابق: <strong id="displayStudentName"></strong></p>
