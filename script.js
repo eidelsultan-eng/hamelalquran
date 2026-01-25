@@ -368,6 +368,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // --- 1. Unique Phone Numbers Validation ---
+            const formData = new FormData(registrationForm);
+            const p1 = formData.get('phone1')?.trim();
+            const p2 = formData.get('phone2')?.trim();
+            const p3 = formData.get('phone3')?.trim();
+            const sp = formData.get('sheikhPhone')?.trim();
+
+            const phoneList = [p1, p2, p3, sp].filter(p => p && p !== "");
+            const uniquePhones = new Set(phoneList);
+            if (uniquePhones.size !== phoneList.length) {
+                alert("⚠️ يرجى إدخال أرقام هواتف مختلفة. لا يسمح بتكرار نفس الرقم في أكثر من خانة لضمان القدرة على التواصل معك.");
+                return;
+            }
+
             const ageInfo = calculateAgeFromID(nationalID);
             if (!ageInfo) {
                 alert('يرجى التأكد من صحة الرقم القومي (14 رقم تبدأ بـ 2 أو 3).');
@@ -377,10 +391,44 @@ document.addEventListener('DOMContentLoaded', () => {
             if (submitBtn) {
                 submitBtn.disabled = true;
                 if (loader) loader.style.display = 'inline-block';
-                if (btnText) btnText.textContent = 'جاري حفظ البيانات...';
+                if (btnText) btnText.textContent = 'جاري التحقق من البيانات...';
             }
 
             try {
+                // --- 2. Duplicate Check (Name and National ID) ---
+                if (isFirebaseConfigured && db) {
+                    // Check National ID first (Primary unique identifier)
+                    const idCheck = await db.collection('registrations')
+                        .where('nationalID', '==', nationalID)
+                        .limit(1)
+                        .get();
+
+                    if (!idCheck.empty) {
+                        alert('⚠️ عذراً، هذا الرقم القومي مسجل مسبقاً في المسابقة.');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            if (loader) loader.style.display = 'none';
+                            if (btnText) btnText.textContent = 'إرسال طلب التقديم';
+                        }
+                        return;
+                    }
+
+                    // Check Name (Secondary check)
+                    const nameCheck = await db.collection('registrations')
+                        .where('studentName', '==', studentName)
+                        .limit(1)
+                        .get();
+
+                    if (!nameCheck.empty) {
+                        alert('⚠️ عذراً، هذا الاسم مسجل مسبقاً في أحد المستويات. لا يسمح بتكرار التسجيل لنفس الاسم.');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            if (loader) loader.style.display = 'none';
+                            if (btnText) btnText.textContent = 'إرسال طلب التقديم';
+                        }
+                        return;
+                    }
+                }
 
                 // 2. Prepare Data for Firestore
                 const formData = new FormData(registrationForm);
@@ -436,8 +484,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         const start = ranges[registrationData.gender][registrationData.level];
                         const assignedSeat = start + count;
 
-                        // 2. Calculate Committee Number (15 students per committee)
-                        const committeeNumber = Math.ceil((count + 1) / 15);
+                        // 2. Calculate Committee Number (20 students per committee)
+                        const committeeNumber = Math.ceil((count + 1) / 20);
 
                         // Update counter for next student
                         transaction.set(counterRef, { count: count + 1 });

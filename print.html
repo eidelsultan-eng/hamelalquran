@@ -109,7 +109,18 @@
             }
 
             table {
-                font-size: 12px;
+                font-size: 11px;
+                /* Slightly smaller for 20 rows */
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            .level-section {
+                page-break-after: always;
             }
         }
     </style>
@@ -221,67 +232,75 @@
                 return;
             }
 
-            // Group the data
+            // Group the data by Level and then by Committee
             let grouped = {};
             filteredData.forEach(data => {
-                if (!grouped[data.level]) grouped[data.level] = [];
-                grouped[data.level].push(data);
+                if (!grouped[data.level]) grouped[data.level] = {};
+                const comm = data.committee || 1;
+                if (!grouped[data.level][comm]) grouped[data.level][comm] = [];
+                grouped[data.level][comm].push(data);
             });
 
             for (const level in grouped) {
-                const levelHeader = document.createElement('h2');
-                levelHeader.style.textAlign = 'center';
-                levelHeader.style.margin = '30px 0 10px';
-                levelHeader.style.padding = '10px';
-                levelHeader.style.background = '#f2f2f2';
-                levelHeader.style.border = '2px solid #000';
-                levelHeader.innerText = level;
-                printContent.appendChild(levelHeader);
+                for (const comm in grouped[level]) {
+                    const section = document.createElement('div');
+                    section.className = 'level-section';
 
-                const table = document.createElement('table');
-                table.innerHTML = `
-                    <thead>
-                        <tr>
-                            <th style="width: 5%">م</th>
-                            <th style="width: 10%">رقم الجلوس</th>
-                            <th style="width: 5%">السن</th>
-                            <th style="width: 10%">اللجنة</th>
-                            <th style="width: 20%">اسم المتسابق</th>
-                            <th style="width: 8%">النوع</th>
-                            <th style="width: 15%">أرقام الهاتف</th>
-                            <th style="width: 4%">ش</th>
-                            <th style="width: 4%">ح</th>
-                            <th style="width: 9%">الدرجة</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                `;
-                const tbody = table.querySelector('tbody');
-                let counter = 1;
+                    const levelHeader = document.createElement('h2');
+                    levelHeader.style.textAlign = 'center';
+                    levelHeader.style.margin = '20px 0 10px';
+                    levelHeader.style.padding = '10px';
+                    levelHeader.style.background = '#f2f2f2';
+                    levelHeader.style.border = '2px solid #000';
+                    levelHeader.innerHTML = `${level} <br> <span style="font-size: 1.2rem; color: #aa8c2c;">لجنة رقم (${comm})</span>`;
+                    section.appendChild(levelHeader);
 
-                grouped[level].forEach(data => {
-                    const row = `
-                        <tr>
-                            <td>${counter++}</td>
-                            <td style="font-weight: bold; background: #fefefe;">${data.seatNumber || '-'}</td>
-                            <td style="font-weight: bold; font-size: 11px;">${data.ageYears || 0}س و ${data.ageMonths || 0}ش</td>
-                            <td style="font-weight: bold; color: #aa8c2c;">${data.committee || '-'}</td>
-                            <td style="text-align: right; font-weight: bold;">${data.studentName}</td>
-                            <td>${data.gender || '-'}</td>
-                            <td>
-                                <div style="font-size: 11px; line-height: 1.2;">
-                                    <div style="font-weight: bold;">${data.phone1}</div>
-                                    <div style="color: #666; border-top: 1px solid #eee;">${data.phone2}</div>
-                                </div>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th style="width: 5%">م</th>
+                                <th style="width: 10%">رقم الجلوس</th>
+                                <th style="width: 5%">السن</th>
+                                <th style="width: 10%">اللجنة</th>
+                                <th style="width: 25%">اسم المتسابق</th>
+                                <th style="width: 8%">النوع</th>
+                                <th style="width: 15%">أرقام الهاتف</th>
+                                <th style="width: 4%">ش</th>
+                                <th style="width: 4%">ح</th>
+                                <th style="width: 7%">الدرجة</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                     `;
-                    tbody.innerHTML += row;
-                });
-                printContent.appendChild(table);
+                    const tbody = table.querySelector('tbody');
+                    let counter = 1;
+
+                    grouped[level][comm].forEach(data => {
+                        const row = `
+                            <tr>
+                                <td>${counter++}</td>
+                                <td style="font-weight: bold; background: #fefefe;">${data.seatNumber || '-'}</td>
+                                <td style="font-weight: bold; font-size: 10px;">${data.ageYears || 0}س و ${data.ageMonths || 0}ش</td>
+                                <td style="font-weight: bold; color: #aa8c2c;">${data.committee || '-'}</td>
+                                <td style="text-align: right; font-weight: bold;">${data.studentName}</td>
+                                <td>${data.gender || '-'}</td>
+                                <td>
+                                    <div style="font-size: 10px; line-height: 1.2;">
+                                        <div style="font-weight: bold;">${data.phone1}</div>
+                                        <div style="color: #666; border-top: 1px solid #eee;">${data.phone2}</div>
+                                    </div>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+                    section.appendChild(table);
+                    printContent.appendChild(section);
+                }
             }
 
             document.getElementById('regCount').innerText = `إجمالي المعروض: ${filteredData.length}`;
